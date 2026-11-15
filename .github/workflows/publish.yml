@@ -9,21 +9,18 @@ on:
         description: "Package and verify without uploading"
         type: boolean
         default: false
-      yank:
-        description: "Yank this version from crates.io instead of publishing"
-        required: false
 
 permissions:
   contents: read
   id-token: write # required for the crates.io OIDC token exchange
 
-# Both jobs need a trusted publisher on crates.io for *this* workflow file and the
+# Publishing needs a trusted publisher on crates.io for this workflow file and the
 # `release` environment, and the repository variable CRATES_IO_PUBLISH=true
-# (see doc/PUBLISHING.md). Until then they are skipped and a tag only runs ci.yml.
+# (see doc/PUBLISHING.md). Until then the job is skipped and a tag only runs ci.yml.
 jobs:
   publish:
     runs-on: ubuntu-latest
-    if: vars.CRATES_IO_PUBLISH == 'true' && inputs.yank == ''
+    if: vars.CRATES_IO_PUBLISH == 'true'
     environment: release
 
     steps:
@@ -41,23 +38,3 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
         run: cargo publish --locked ${{ inputs.dry_run && '--dry-run' || '' }}
-
-  # A broken release cannot be republished under the same version: it is yanked
-  # and followed by a fix release. Yanked versions stay installable when pinned
-  # exactly; `cargo install keycloak-cli` and `^` requirements skip them.
-  yank:
-    runs-on: ubuntu-latest
-    if: vars.CRATES_IO_PUBLISH == 'true' && inputs.yank != ''
-    environment: release
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.88.0
-
-      - uses: rust-lang/crates-io-auth-action@v1
-        id: auth
-
-      - name: Yank from crates.io
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
-        run: cargo yank --version "${{ inputs.yank }}"

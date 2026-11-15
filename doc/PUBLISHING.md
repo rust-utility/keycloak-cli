@@ -72,18 +72,22 @@ gh release view v26.8.101 --repo rust-utility/keycloak-cli
 
 ## Yanking a release
 
-A broken release cannot be republished under the same version, so it is yanked and
-followed by a fix release (`26.8.101` → `26.8.102`) with the same recipe:
+A broken release cannot be republished under the same version, so it is superseded
+by a fix release (`26.8.101` → `26.8.102`) with the same recipe.
+
+Yanking it as well is a manual step, because a trusted-publishing token is scoped
+to uploading: the OIDC token exchange succeeds and crates.io then answers
+`403 authentication failed` for `cargo yank`. With a personal token that has yank
+rights:
 
 ```sh
-gh workflow run publish --ref main -f yank=26.8.101
+cargo login            # token from https://crates.io/settings/tokens
+cargo yank --version 26.8.101
 ```
 
-The yank job lives in `publish.yml` because the trusted publisher is configured for
-that workflow file only; it reuses the same OIDC token exchange, so no token is
-handled. Yanked versions stay installable when pinned exactly; `cargo install
-keycloak-cli` and `^` requirements skip them. `26.8.101` was yanked because that
-build had no TLS backend.
+Yanked versions stay installable when pinned exactly; `cargo install
+keycloak-cli` and `^` requirements skip them. Publishing `26.8.102` already makes
+it the version everyone gets, so yanking `26.8.101` only protects exact pins.
 
 ## Verifying a release
 
