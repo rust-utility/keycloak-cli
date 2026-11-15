@@ -1,6 +1,8 @@
 /target
 **/*.rs.bk
 
-# Loop bookkeeping, not part of the crate.
+# Agent-loop bookkeeping, not part of the crate: per-round notes and the loop's
+# own state/history files.
+doc/RALPH_PROGRESS.md
 doc/.rounds-state.plan.json
 doc/rounds-history.plan.jsonl
