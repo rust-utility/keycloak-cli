@@ -7,6 +7,8 @@ built on the [`keycloak`](https://crates.io/crates/keycloak) crate.
 [![ci](https://github.com/rust-utility/keycloak-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/rust-utility/keycloak-cli/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-Unlicense%20OR%20MIT-blue.svg)](#legal)
 
+Notes and background: **<https://kilork.github.io/keycloak-cli/>**
+
 Every operation of the Admin REST API is a command — 415 of them, in 36 groups,
 generated from the crate this CLI wraps and pinned to its release. It adds what a
 shell needs around them: a session per terminal so the password is typed once,
