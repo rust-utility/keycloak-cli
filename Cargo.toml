@@ -1,0 +1,19 @@
+[package]
+name = "keycloak-cli"
+version = "26.8.100"
+authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
+edition = "2021"
+rust-version = "1.88"
+categories = ["command-line-utilities"]
+description = "Command-line interface for the Keycloak Admin REST API"
+documentation = "https://docs.rs/keycloak-cli"
+homepage = "https://github.com/rust-utility/keycloak-cli"
+keywords = ["keycloak", "cli", "admin-api", "rest", "iam"]
+license = "Unlicense OR MIT"
+readme = "README.md"
+repository = "https://github.com/rust-utility/keycloak-cli"
+# The pinned toolchain is for development here; it must not constrain consumers.
+exclude = ["rust-toolchain.toml"]
+
+[dependencies]
+clap = { version = "4", features = ["cargo", "derive", "env"] }
