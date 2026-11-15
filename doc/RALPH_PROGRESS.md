@@ -238,78 +238,46 @@ clippy --all-targets -D warnings` (also `--no-default-features --features
 tag-users`), `cargo fmt --check`, `scripts/generate.sh --check`, and a deliberate
 type error in a generated module proved the modules are really compiled.
 
-### Notes for the next round (Q4)
 
-- The tree is generated but not yet parsed by `main`: `src/cli.rs` still uses a
-  derive `Command` enum with `info` only. Q4 needs `build_cli()` (clap builder =
-  connection args from `connection_args()` + `generated::commands()`),
-  `Cli::from_arg_matches`-style extraction, a current-thread tokio runtime and a
-  `KeycloakAdmin` from the existing flags (`KeycloakAdminToken::acquire`), then
-  `generated::dispatch(admin, realm, words, args)` and `Error` → exit codes.
-- That change is also what makes M2's `--help` line and M1's "dispatches to its
-  crate method" verifiable end to end; a loopback HTTP stub (stdlib
-  `TcpListener`) can assert method/path/query without a Keycloak server.
-- `--body` reading, argument readers and error types are already in place, so Q4
-  is mostly plumbing. Generated `DefaultResponse` operations currently return
-  `Value::Null`; the output layer (Q8) can decide what to print for them.
+### Added in the same round: Q5 (dynamic completion)
 
-## Round 4 — Q4: generated commands call the API
+- `src/completion.rs` — `complete()` calls `CompleteEnv::with_factory(build_cli)`
+  (the same tree as parsing, which is why the completion of `clients`/`--first`
+  matches the build), `init(shell, program)` prints the line for each shell, and
+  `SHELLS`/`shell(name)` back the `init` argument.
+- `keycloak-cli init <bash|zsh|fish|elvish|powershell>` prints that line with the
+  absolute binary path; `main` calls `complete()` before anything can write to
+  stdout (a shell parses everything the process prints as the answer).
+- Bash uses `eval "$(COMPLETE=bash …)"` rather than clap's `source <(…)`: on
+  macOS bash 3.2.57 `source <(…)` defines the completion function in a subshell,
+  so TAB silently does nothing. zsh keeps `source <(…)`.
+- `tests/completion.rs` (8 tests) drives the real binary with the shell's protocol
+  (`COMPLETE`, `_CLAP_COMPLETE_INDEX`, `_CLAP_IFS`): subcommands of a group, flags
+  of a command (including the global connection flags), top-level groups, the
+  shells of `init`, the registration script, the `init` lines and the exit code of
+  an unknown shell; a positional currently falls back to flags, which is where Q7
+  plugs live values in.
+- README gained a "Shell completion" section with the per-shell lines and the
+  re-source-after-upgrade note (the shell↔binary protocol is unstable by clap's
+  own documentation, F10).
+- Verified by hand: `eval "$(keycloak-cli init bash)"` in bash 3.2.57, then the
+  registered function answers `clients` with its subcommands and `--sea` with
+  `--search`; zsh registers `_clap_dynamic_completer_keycloak_cli`; no fish,
+  elvish or powershell is installed here, so those are covered by their printed
+  lines only.
 
-Goal: runtime plus `KeycloakAdmin` construction from config, one generated command
-asserted against a loopback HTTP stub. **Done, together with the exit-code mapping
-and the parser wiring that made M1 and M2 checkable.**
+### Notes for the next round (Q6/Q7)
 
-### What exists now
-
-- `src/cli.rs` — the tree is assembled at runtime instead of derived:
-  `build_cli()` = `ConnectionArgs::augment_args` + `info` + `generated::commands()`;
-  `Cli::{parse,try_parse_from,from_matches}` read the connection flags and the
-  innermost `Invocation { words, args }` (`info` and "no command" stay the CLI's
-  own). This is the `build_cli()` Q5 wanted for completion, and it is why `--help`
-  now lists what a build ships.
-- `src/client.rs` — `execute(config, invocation)`: current-thread tokio runtime
-  (`rt`,`net`,`time`) → `connect` (`KeycloakAdminToken::acquire` with the existing
-  flags, a missing password is a usage error) → `generated::dispatch` →
-  `serde_json::Value`. Non-null values are printed as pretty JSON (Q8 replaces
-  this with `--output`).
-- `Error::exit_code()`: 0 success, 1 failure, 2 usage, 3 for 401/403, 4 for 404;
-  `main` prints the error to stderr and exits with it.
-- `Cargo.toml`: `tokio` (rt/net/time), `default-run = "keycloak-cli"` (two binaries
-  now exist).
-- `tests/loopback.rs` — a stdlib `TcpListener` stub that records requests and
-  answers in order (token, then API): GET with query, positional in path, `--body`
-  from a file as POST JSON, 404 → exit 4, rejected token → exit 3.
-- `src/cli.rs` tests: `build_cli().debug_assert()`, help contains the groups, a
-  generated command parses into words, unknown subcommands are rejected.
-- CI: a `tag-users` build step that asserts `--help` lists `users` and not
-  `clients` (M2), and the PLAN's checks gained
-  `cargo build --no-default-features --features tag-users`.
-
-### Verified
-
-- `cargo test --all`: **60 tests** (42 unit + 9 commands + 4 generated + 5
-  loopback), all green; the loopback test asserts the exact request lines, e.g.
-  `GET /admin/realms/master/clients?first=5&search=true` with
-  `authorization: bearer stub-token`, and that absent flags are not sent.
-- `keycloak-cli --help` lists 36 groups; `keycloak-cli clients --help` lists its
-  subcommands (including the shaped `client-uuid` subtree); `--no-default-features
-  --features tag-users --help` lists only `users` (M2).
-- `cargo fmt --check`, `cargo clippy --all-targets -D warnings` (default and
-  `tag-users`), `scripts/generate.sh --check`, `cargo package --locked` all clean.
-
-### Notes for the next round (Q5/Q6/Q7 — completion and sessions)
-
-- `build_cli()` is the single tree for parsing *and* completion: Q5 wraps it in
-  `CompleteEnv::with_factory(build_cli).complete()` behind `clap_complete`'s
-  `unstable-dynamic` feature and adds `init bash|zsh|fish` (F8, F10, F13).
-- The dispatch signature `generated::dispatch(admin, realm, words, args)` is where a
-  session (Q6) can replace the token source: `KeycloakAdmin<TS>` is already generic
-  over `KeycloakTokenSupplier`, so a session token supplier slots in without
-  touching generated code (F11, F14).
-- `src/command.rs` already exposes the arg ids (`client_uuid`, `realm`, …) that a
-  completion registry needs to map parameters to live value sources (Q7, F12/F15).
-- Output is still raw pretty JSON; Q8 adds `--output json|yaml|table|markdown|html`.
-
+- Completion exists but has no live values: `tests/completion.rs` pins the current
+  fallback (flags at a positional). Q6 adds the session (`login` writes a 0600
+  state file keyed by tty+session, `init` exports `KEYCLOAK_CLI_SESSION`), Q7 the
+  registry param → value source with a TTL cache, timeout and silent failure.
+- The dispatch is generic over `KeycloakTokenSupplier` and `client::connect` is the
+  only place that builds a token, so a session supplier can replace
+  `KeycloakAdminToken::acquire` without touching generated code (F11, F14).
+- Arg ids in `CommandSpec` are the crate's snake_case names (`client_uuid`,
+  `realm`, …), which is the key a completion registry should use (F12, F15).
+- Output is still pretty JSON; Q8's `--output` replaces `lib.rs::write_value`.
 
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…

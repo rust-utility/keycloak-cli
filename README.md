@@ -54,6 +54,27 @@ JSON on stdout, so they compose with `jq`:
 keycloak-cli clients list | jq '.[].clientId'
 ```
 
+## Shell completion
+
+Completion is dynamic: the shell asks the binary, so candidates always match the
+installed version (and, once live completion lands, the realms, users and groups
+of the session).
+
+```sh
+# bash — macOS still ships bash 3.2, so the registration is evaluated
+eval "$(keycloak-cli init bash)"      # add to ~/.bashrc
+# zsh
+source <(keycloak-cli init zsh)       # add to ~/.zshrc
+# fish
+COMPLETE=fish keycloak-cli | source   # add to ~/.config/fish/completions/keycloak-cli.fish
+```
+
+`keycloak-cli init <shell>` prints that line for `bash`, `zsh`, `fish`, `elvish`
+and `powershell`, with the absolute path of the binary. The line runs the binary
+on every shell start, which is deliberate: the completion protocol between shell
+and binary is documented as unstable by clap, so re-sourcing (or re-running
+`init`) after an upgrade or a move is what keeps completion working.
+
 ## Exit codes
 
 | code | meaning |

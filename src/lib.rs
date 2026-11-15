@@ -19,6 +19,7 @@
 pub mod cli;
 pub mod client;
 pub mod command;
+pub mod completion;
 pub mod config;
 pub mod error;
 pub mod generate;
@@ -38,12 +39,33 @@ pub fn run(cli: Cli) -> Result<(), Error> {
         // No command, or the CLI's own `info`: describe the configuration.
         None => info(&cli),
         Some(invocation) if invocation.words == ["info"] => info(&cli),
+        Some(invocation) if invocation.words == ["init"] => init(invocation),
         Some(invocation) => {
             let config = Config::from(&cli.connection);
             let value = client::execute(&config, invocation)?;
             write_value(&value)
         }
     }
+}
+
+/// Prints the line that registers completion in a shell.
+fn init(invocation: &Invocation) -> Result<(), Error> {
+    let name = invocation
+        .args
+        .get_one::<String>("shell")
+        .map(String::as_str)
+        .ok_or_else(|| {
+            Error::usage(format!(
+                "init needs a shell: {}",
+                completion::SHELLS.join(", ")
+            ))
+        })?;
+    let shell =
+        completion::shell(name).ok_or_else(|| Error::usage(format!("unknown shell {name}")))?;
+    let program =
+        std::env::current_exe().unwrap_or_else(|_| std::path::PathBuf::from("keycloak-cli"));
+    println!("{}", completion::init(shell, &program));
+    Ok(())
 }
 
 /// Prints the effective configuration; secrets are redacted.

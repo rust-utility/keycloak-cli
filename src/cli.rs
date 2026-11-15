@@ -8,7 +8,7 @@
 
 use std::ffi::OsString;
 
-use clap::{ArgMatches, Args, Command, FromArgMatches};
+use clap::{Arg, ArgMatches, Args, Command, FromArgMatches};
 
 use crate::version;
 
@@ -85,6 +85,18 @@ pub fn build_cli() -> Command {
         .subcommand(
             Command::new("info")
                 .about("Show the effective connection configuration (secrets redacted)."),
+        )
+        .subcommand(
+            Command::new("init")
+                .about("Print the line to add to a shell's startup file for completions.")
+                .arg(
+                    Arg::new("shell")
+                        .value_name("SHELL")
+                        .required(true)
+                        .value_parser(clap::builder::PossibleValuesParser::new(
+                            crate::completion::SHELLS,
+                        )),
+                ),
         );
     let command = ConnectionArgs::augment_args(command);
     crate::generated::commands()
