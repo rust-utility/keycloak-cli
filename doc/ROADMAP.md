@@ -87,8 +87,12 @@ crate exposes it.
 - [ ] Coloured tables with `--color auto|always|never`, no colour when piped
 - [ ] `keycloak-cli help topics` for common recipes (CI service account, migrate
       realm between servers, find users without MFA)
-- [ ] GitHub release artefacts (linux/macos, static where possible) next to
-      `cargo install` and (maybe) Homebrew
+- [x] GitHub release artefacts — the `release` workflow attaches verified binaries
+      for macOS (arm64/x86_64) and Linux (aarch64/x86_64, static musl) plus
+      `SHA256SUMS`; `install.sh` installs and updates from them, and
+      `keycloak-cli self-update` replaces the running binary after checking the
+      checksum
+- [ ] Homebrew formula
 - [x] crates.io trusted publishing — `keycloak-cli` is published from the `publish`
       workflow with OIDC (see `doc/PUBLISHING.md`; 26.8.100 and 26.8.101 so far)
 

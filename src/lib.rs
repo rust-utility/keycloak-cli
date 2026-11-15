@@ -29,6 +29,7 @@ pub mod live_sources;
 pub mod report;
 pub mod report_command;
 pub mod session;
+pub mod update;
 pub mod version;
 
 pub use cli::{Cli, Invocation};
@@ -51,10 +52,36 @@ pub fn run(cli: Cli) -> Result<(), Error> {
             Ok(())
         }
         Some(invocation) if invocation.words == ["report"] => report(&cli, invocation),
+        Some(invocation) if invocation.words == ["self-update"] => self_update(invocation),
         Some(invocation) if invocation.words == ["login"] => login(&cli),
         Some(invocation) if invocation.words == ["logout"] => logout(),
         Some(invocation) => run_api(&cli, invocation),
     }
+}
+
+/// Replaces this binary with a released one.
+fn self_update(invocation: &Invocation) -> Result<(), Error> {
+    let options = update::Options {
+        check: invocation.args.get_flag("check"),
+        version: invocation.args.get_one::<String>("version").cloned(),
+        force: invocation.args.get_flag("force"),
+    };
+    let exe = std::env::current_exe().map_err(Error::Io)?;
+    let updater = update::Update::default();
+    let outcome =
+        client::runtime()?.block_on(updater.run(&exe, version::CRATE_VERSION, &options))?;
+    match outcome {
+        update::Outcome::UpToDate { version } => {
+            println!("keycloak-cli {version} is up to date");
+        }
+        update::Outcome::Available { current, latest } => {
+            println!("keycloak-cli {latest} is available (current {current})");
+        }
+        update::Outcome::Updated { from, to, path } => {
+            println!("updated keycloak-cli {from} -> {to} ({})", path.display());
+        }
+    }
+    Ok(())
 }
 
 /// Writes the report document, to a file or to stdout.

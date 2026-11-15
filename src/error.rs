@@ -20,6 +20,8 @@ pub enum Error {
     Usage(String),
     /// A response could not be rendered in the requested format.
     Format(String),
+    /// `self-update` could not fetch or install a release.
+    Update(String),
 }
 
 impl Error {
@@ -42,7 +44,9 @@ impl Error {
                 404 => 4,
                 _ => 1,
             },
-            Error::Io(_) | Error::Json(_) | Error::Api(_) | Error::Format(_) => 1,
+            Error::Io(_) | Error::Json(_) | Error::Api(_) | Error::Format(_) | Error::Update(_) => {
+                1
+            }
         }
     }
 }
@@ -55,6 +59,7 @@ impl fmt::Display for Error {
             Error::Json(error) => write!(f, "invalid json: {error}"),
             Error::Usage(message) => write!(f, "{message}"),
             Error::Format(message) => write!(f, "cannot render the response: {message}"),
+            Error::Update(message) => write!(f, "update failed: {message}"),
         }
     }
 }
@@ -65,7 +70,7 @@ impl StdError for Error {
             Error::Io(error) => Some(error),
             Error::Api(error) => Some(error),
             Error::Json(error) => Some(error),
-            Error::Usage(_) | Error::Format(_) => None,
+            Error::Usage(_) | Error::Format(_) | Error::Update(_) => None,
         }
     }
 }

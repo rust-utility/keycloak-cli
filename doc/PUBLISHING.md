@@ -56,6 +56,20 @@ a tag can only build against the release the sources were generated from. A *fix
 release* of the CLI (`26.8.101`) bumps only the package version — the pin, and
 therefore the generated sources, stay where they are.
 
+## Release binaries
+
+A tag also runs `.github/workflows/release.yml`, which builds the CLI for
+`aarch64-apple-darwin`, `x86_64-apple-darwin`, `x86_64-unknown-linux-musl` and
+`aarch64-unknown-linux-musl`, attaches `keycloak-cli-<target>` for each to the
+release and adds a `SHA256SUMS` file. `install.sh` and `keycloak-cli self-update`
+consume exactly those assets, so a release is not complete until the workflow is
+green:
+
+```sh
+gh run watch $(gh run list --workflow release --limit 1 --json databaseId -q '.[0].databaseId')
+gh release view v26.8.101 --repo rust-utility/keycloak-cli
+```
+
 ## Verifying a release
 
 - `gh run watch` the publish run: the log shows `Packaged` → `Uploading` →

@@ -63,3 +63,5 @@ serde_yaml_ng = "0.10"
 comfy-table = { version = "8", features = ["custom_styling"] }
 # A current-thread runtime is all the CLI needs: one request per invocation.
 tokio = { version = "1", features = ["rt", "net", "time"] }
+# `self-update` verifies the downloaded binary against the release's SHA256SUMS.
+sha2 = "0.10"

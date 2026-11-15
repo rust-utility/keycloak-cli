@@ -8,7 +8,7 @@
 
 use std::ffi::OsString;
 
-use clap::{Arg, ArgMatches, Args, Command, FromArgMatches};
+use clap::{Arg, ArgAction, ArgMatches, Args, Command, FromArgMatches};
 
 use crate::version;
 
@@ -103,6 +103,33 @@ pub fn build_cli() -> Command {
                         .long("file")
                         .value_name("PATH")
                         .help("write the report to this file instead of stdout"),
+                ),
+        )
+        .subcommand(
+            Command::new("self-update")
+                .about("Replace this binary with a released version.")
+                .long_about(
+                    "Checks the latest release on GitHub, downloads the binary for this \
+                     platform, verifies it against the release's SHA256SUMS and replaces \
+                     the running executable. `install.sh` does the same from a shell.",
+                )
+                .arg(
+                    Arg::new("check")
+                        .long("check")
+                        .action(ArgAction::SetTrue)
+                        .help("only report whether a newer version exists"),
+                )
+                .arg(
+                    Arg::new("version")
+                        .long("version")
+                        .value_name("VERSION")
+                        .help("install this version instead of the latest, e.g. 26.8.101"),
+                )
+                .arg(
+                    Arg::new("force")
+                        .long("force")
+                        .action(ArgAction::SetTrue)
+                        .help("reinstall even when that version is already installed"),
                 ),
         )
         .subcommand(

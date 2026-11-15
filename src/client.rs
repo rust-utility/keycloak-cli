@@ -111,7 +111,7 @@ pub fn logout() -> Result<Option<Session>, Error> {
 }
 
 /// The runtime every command runs on.
-fn runtime() -> Result<tokio::runtime::Runtime, Error> {
+pub(crate) fn runtime() -> Result<tokio::runtime::Runtime, Error> {
     tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
