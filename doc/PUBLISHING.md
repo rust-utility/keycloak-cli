@@ -1,59 +1,80 @@
 # Publishing
 
 `keycloak-cli` is published to crates.io from GitHub Actions with
-[trusted publishing](https://crates.io/docs/trusted-publishing) (OIDC, no stored
-token). The workflow is already in place (`.github/workflows/publish.yml`) but
-inert until both steps below are done.
+[trusted publishing](https://crates.io/docs/trusted-publishing): a tag runs
+`.github/workflows/publish.yml`, which tests, exchanges the GitHub OIDC token for a
+short-lived crates.io token and runs `cargo publish`. No token is stored anywhere.
 
-## One-time setup
+## Setup (done 2026-11-15, keep for reference)
 
-1. **Trusted publisher on crates.io.** The crate `keycloak-cli` already exists
-   (0.1.0, owned by `kilork`); open <https://crates.io/crates/keycloak-cli/settings>
-   and add a trusted publisher with:
-   - Owner: `rust-utility`
-   - Repository: `keycloak-cli`
-   - Workflow: `publish.yml`
-   - Environment: `release`
-
-2. **Repository variable.** Enable the workflow in this repository:
+1. **Trusted publisher on crates.io** — <https://crates.io/crates/keycloak-cli/settings>
+   with owner `rust-utility`, repository `keycloak-cli`, workflow `publish.yml`,
+   environment `release`.
+2. **Repository variable** — `CRATES_IO_PUBLISH=true`:
 
    ```sh
    gh variable set CRATES_IO_PUBLISH --body true --repo rust-utility/keycloak-cli
    ```
 
-   Until it is set, `.github/workflows/publish.yml` skips its only job, so a tag
-   only runs `ci.yml`.
+   Without it the workflow's only job is skipped and a tag only runs `ci.yml`.
+3. **Environment** — the job runs in the `release` environment; add protection rules
+   there if releases should need approval.
 
-3. **Environment.** The job runs in the `release` environment; add protection
-   rules there (required reviewers) if releases should need approval.
+If a run fails at the token exchange with *"No Trusted Publishing config found for
+repository …"*, the crates.io side is missing or does not match the workflow
+(owner, repository, workflow file name, environment).
 
 ## Release
 
 The version encodes the wrapped Keycloak version (see the README):
 `x.y.(z * 100 + v)` targets Keycloak `x.y.z`, fix release `v`. A release is a
-version bump plus a tag, keeping it in lockstep with the `keycloak` crate
-release it builds against.
+version bump plus a tag, keeping it in lockstep with the `keycloak` crate release it
+builds against.
 
 ```sh
-# 1. bump Cargo.toml to the new version and update Cargo.lock
+# 1. bump Cargo.toml to the new version and update the lock file
 cargo build
 git commit -am "Release v26.8.100"
 git push
 
-# 2. tag and push the tag (this triggers publish.yml)
-git tag -a v26.8.100 -m "Release v26.8.100"
+# 2. tag and push the tag: this triggers publish.yml
+git tag -a v26.8.100 -m "keycloak-cli 26.8.100 (Keycloak Admin REST API 26.8.1)"
 git push origin v26.8.100
+
+# 3. a GitHub release with notes
+gh release create v26.8.100 --title "keycloak-cli 26.8.100" --notes-file notes.md
 ```
 
-Dry run without uploading: `Actions → publish → Run workflow → dry_run`.
-
-## Verifying the package
-
-`cargo package --locked` runs in CI on every push, so a missing `README.md`,
-license file or rejected metadata fails before a tag is cut. To inspect the
-archive locally:
+Dry run without uploading (`Packaged` but no `Uploading`):
 
 ```sh
-cargo package --locked --no-verify
-tar -tzf target/package/keycloak-cli-*.crate | sort
+gh workflow run publish --ref v26.8.100 -f dry_run=true
+```
+
+The workflow pins the wrapped crate: the dependency is `keycloak = "=26.8.100"`, so
+a tag can only build against the release the sources were generated from.
+
+## Verifying a release
+
+- `gh run watch` the publish run: the log shows `Packaged` → `Uploading` →
+  `Uploaded` → `Published`.
+- The registry API: `curl -s https://crates.io/api/v1/crates/keycloak-cli | jq -r .crate.max_version`.
+- docs.rs builds the crate automatically after publication:
+  <https://docs.rs/keycloak-cli>.
+- The package itself: `cargo package --locked` runs in CI on every push, so a
+  missing `README.md`, license file or rejected metadata fails before a tag is cut.
+  To inspect the archive locally:
+
+  ```sh
+  cargo package --locked --no-verify
+  tar -tzf target/package/keycloak-cli-*.crate | sort
+  ```
+
+## Installed crate
+
+`cargo install keycloak-cli` builds the CLI with every tag enabled. For a smaller
+build, install from a checkout with a tag subset:
+
+```sh
+cargo install --path . --no-default-features --features tag-users
 ```
