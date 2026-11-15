@@ -201,12 +201,15 @@ impl Source for Clients {
     }
 }
 
-#[cfg(all(test, any(
-    feature = "tag-clients",
-    feature = "tag-groups",
-    feature = "tag-realms-admin",
-    feature = "tag-users"
-)))]
+#[cfg(all(
+    test,
+    any(
+        feature = "tag-clients",
+        feature = "tag-groups",
+        feature = "tag-realms-admin",
+        feature = "tag-users"
+    )
+))]
 mod tests {
     use super::*;
 
