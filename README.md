@@ -126,6 +126,22 @@ silent. `KEYCLOAK_CLI_NO_LIVE_COMPLETION=1` turns live completion off. How sessi
 registration and the cache work, and what to do when TAB offers nothing, is in
 [`doc/COMPLETION.md`](doc/COMPLETION.md).
 
+## Reports
+
+`keycloak-cli report` writes a document about the realm: users and their
+enabled/disabled split, events by type, and active sessions per client, each with a
+horizontal ASCII chart. Markdown is the default; HTML is a single self-contained
+page (inline styles, no assets) and JSON is available for tooling:
+
+```sh
+keycloak-cli report > report.md
+keycloak-cli report --output html --file report.html
+keycloak-cli report --output json | jq '.sections[].title'
+```
+
+A section whose endpoint fails (events are off in many realms) says so instead of
+failing the report, and `--fields` is for listings, not for reports.
+
 ## Exit codes
 
 | code | meaning |

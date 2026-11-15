@@ -502,6 +502,80 @@ and markdown/html plus `--fields`. **Done: M6 is met; all five formats work.**
   fails; removing the subcommand wiring from `command::tree` →
   `tests/completion.rs` fails 2 tests. Everything was restored and re-verified.
 
+## Round 8 — Q9 / M7: the `report` command
+
+Goal: `keycloak-cli report` writes a markdown and a self-contained HTML report with
+ASCII charts for users, events and sessions. **Done: the objective's last milestone
+is met.**
+
+### What exists now
+
+- `src/report_command.rs` — collects and renders the document:
+  - **Users**: `realm_users_count_get` three times (total, `enabled=true`,
+    `enabled=false`) → `12 users in total: 10 enabled, 2 disabled.` and a bar chart.
+  - **Events by type**: `realm_events_get(..., max=1000)` → counts by
+    `EventRepresentation::type_`, sorted, top 10 plus `other (N kinds)`.
+  - **Sessions per client**: `realm_client_session_stats_get` (a
+    `TypeVec<TypeMap<String, String>>`, so `clientId`/`active` arrive as strings) →
+    active sessions per client.
+  - Charts are in-house Unicode bars (`█`, 36 columns max, labels truncated with
+    `…`, a non-zero value always shows at least one block) — `sparklines`/
+    `textplots` are for time series, not labelled bars (F21, F33).
+  - Renderers: markdown (default, with fenced chart blocks), a **self-contained**
+    HTML page (inline `<style>`, escaped labels, no links or scripts) and JSON.
+  - A section whose endpoint fails becomes `Unavailable: …` instead of failing the
+    report — Keycloak often has events disabled.
+  - Feature-gated per section: `tag-users` for users, `tag-realms-admin` for events
+    and sessions, so `--no-default-features --features tag-users` builds and
+    reports what it can.
+- `report` subcommand (`--file PATH` to write a file, `--output markdown|html|json`;
+  `auto` means markdown, and a table is a usage error — a report is a document).
+- `client::collect_report` runs the collection on the same runtime and admin as
+  every other command (session or password).
+
+### Verified
+
+- `cargo test --all`: **133 tests** green (80 unit incl. 7 report sections/charts,
+  5 report integration, plus the previous suites).
+- `tests/report_command.rs` drives the real binary against a stub serving the three
+  endpoints: markdown default (sections, summaries, `█` bars), self-contained HTML
+  (`<style>`, `<pre>`, no `<link>`), JSON sections, `--file` writing the document
+  (and saying so on stderr), and `--output table` exiting 2.
+- A live sample against a python stub prints the document shown below; `fmt`,
+  `clippy -D warnings` in all three feature configurations and
+  `scripts/generate.sh --check` are clean.
+
+```
+# keycloak-cli report — realm `master`
+
+## Users
+12 users in total: 10 enabled, 2 disabled.
+enabled   ████████████████████████████████████ 10
+disabled  ███████ 2
+
+## Events by type
+13 events in the last sample of at most 1000.
+LOGIN          ████████████████████████████████████ 7
+LOGOUT         ███████████████ 3
+CODE_TO_TOKEN  ██████████ 2
+REGISTER       █████ 1
+
+## Sessions per client
+10 active sessions in 3 clients.
+web     ████████████████████████████████████ 5
+api     ██████████████████████ 3
+mobile  ██████████████ 2
+```
+
+### Notes for the next round
+
+Every milestone of the objective is now met (M0–M8) and every quadrant of the plan
+is checked. What remains is breadth rather than a milestone: the report could take
+date ranges (`/events?dateFrom=`), `--output` could gain `tsv`, and `doc/ROADMAP.md`
+still lists write-path safety (`--dry-run`/`--yes`), contexts, `--token`, `doctor`,
+`--all` pagination, `--quiet/--verbose`, a man page and release artefacts as open
+product work (none of them part of the objective).
+
 
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
@@ -510,3 +584,4 @@ and markdown/html plus `--fields`. **Done: M6 is met; all five formats work.**
 - round 4 · Q4 · 46 turns · continue → continue · generated commands call the API (runtime + admin from con…
 - round 5 · -- · 33 turns · continue → continue · terminal sessions — login/logout with a 0600 state file k…
 - round 6 · -- · 26 turns · continue → continue · live candidates from the API for realm/user/group/client …
+- round 7 · -- · 29 turns · continue → continue · the output layer — json/yaml/table/markdown/html with --o…

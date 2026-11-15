@@ -91,6 +91,21 @@ pub fn build_cli() -> Command {
                 .about("Show the effective connection configuration (secrets redacted)."),
         )
         .subcommand(
+            Command::new("report")
+                .about("Write a report of users, events and sessions with ASCII charts.")
+                .long_about(
+                    "Collects the realm's users, its events by type and its active sessions per \
+                     client, and writes a markdown document (default), a self-contained HTML \
+                     page or JSON. `--file` writes it to a file instead of stdout.",
+                )
+                .arg(
+                    Arg::new("file")
+                        .long("file")
+                        .value_name("PATH")
+                        .help("write the report to this file instead of stdout"),
+                ),
+        )
+        .subcommand(
             Command::new("login")
                 .about("Log in for this terminal and store the token for later commands.")
                 .long_about(

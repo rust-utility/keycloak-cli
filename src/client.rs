@@ -69,6 +69,16 @@ pub async fn connect(config: &Config) -> Result<Admin, Error> {
     )))
 }
 
+/// Collects the report document of the configured realm.
+pub fn collect_report(config: &Config) -> Result<crate::report_command::Report, Error> {
+    runtime()?.block_on(async {
+        match connect(config).await? {
+            Admin::Session(admin) => crate::report_command::collect(&admin, config).await,
+            Admin::Password(admin) => crate::report_command::collect(&admin, config).await,
+        }
+    })
+}
+
 /// Logs in for this terminal and stores the token.
 ///
 /// Returns the stored session and the state file it was written to.

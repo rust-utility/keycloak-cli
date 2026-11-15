@@ -82,6 +82,8 @@ crate exposes it.
 
 - [x] Shell completions (bash, zsh, fish, elvish, powershell), dynamic and aware of
       the session's values — see `doc/COMPLETION.md`; a man page is still missing
+- [x] `keycloak-cli report` — a markdown or self-contained HTML document with ASCII
+      charts for users, events by type and sessions per client
 - [ ] Coloured tables with `--color auto|always|never`, no colour when piped
 - [ ] `keycloak-cli help topics` for common recipes (CI service account, migrate
       realm between servers, find users without MFA)

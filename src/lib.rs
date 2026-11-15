@@ -27,6 +27,7 @@ pub mod generated;
 pub mod live;
 pub mod live_sources;
 pub mod report;
+pub mod report_command;
 pub mod session;
 pub mod version;
 
@@ -48,6 +49,7 @@ pub fn run(cli: Cli) -> Result<(), Error> {
             println!("{}", session::id_for_terminal());
             Ok(())
         }
+        Some(invocation) if invocation.words == ["report"] => report(&cli, invocation),
         Some(invocation) if invocation.words == ["login"] => login(&cli),
         Some(invocation) if invocation.words == ["logout"] => logout(),
         Some(invocation) => {
@@ -56,6 +58,38 @@ pub fn run(cli: Cli) -> Result<(), Error> {
             write_value(&value, &cli.output)
         }
     }
+}
+
+/// Writes the report document, to a file or to stdout.
+fn report(cli: &Cli, invocation: &Invocation) -> Result<(), Error> {
+    use std::io::Write;
+
+    let config = Config::from(&cli.connection);
+    let document = client::collect_report(&config)?;
+    let text = match cli.output.output.as_str() {
+        // A report is a document, so `auto` means markdown rather than a table.
+        "auto" | "markdown" => document.markdown(),
+        "html" => document.html(),
+        "json" => document.json()?,
+        other => {
+            return Err(Error::usage(format!(
+                "a report is written as markdown, html or json, not {other:?}"
+            )))
+        }
+    };
+
+    match invocation.args.get_one::<String>("file") {
+        Some(path) => {
+            std::fs::write(path, text)?;
+            eprintln!("wrote {path}");
+        }
+        None => {
+            let mut stdout = std::io::stdout();
+            stdout.write_all(text.as_bytes())?;
+            stdout.flush()?;
+        }
+    }
+    Ok(())
 }
 
 /// Logs in for this terminal and reports where the token went.
