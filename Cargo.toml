@@ -58,5 +58,8 @@ async-trait = "0.1"
 keycloak = { version = "=26.8.100", default-features = false, features = ["reqwest"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# Output layer (Q8): YAML with a maintained fork of serde_yaml (F19) and tables.
+serde_yaml_ng = "0.10"
+comfy-table = { version = "8", features = ["custom_styling"] }
 # A current-thread runtime is all the CLI needs: one request per invocation.
 tokio = { version = "1", features = ["rt", "net", "time"] }

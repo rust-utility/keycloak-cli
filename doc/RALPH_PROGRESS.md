@@ -425,6 +425,64 @@ Goal: API wiring for `--realm`, `--user-id`, `--group-id`, `--client-uuid`.
 - M6/M7 remain: the output layer and `report` (comfy-table, serde_yaml_ng,
   pulldown-cmark/termimad, minijinja, sparklines — all ≤ 1.88 per F20/F21).
 
+## Round 7 — Q8: the output layer (M6)
+
+Goal: `Report` plus json/yaml/table renderers with `--output auto` TTY detection,
+and markdown/html plus `--fields`. **Done: M6 is met; all five formats work.**
+
+### What exists now
+
+- `src/report.rs` — `Format::{Auto,Json,Yaml,Table,Markdown,Html}` with `from_name`
+  and `resolve(is_terminal)` (`auto` = table on a terminal, JSON when piped, F22);
+  one `render(value, fields, format, is_terminal)` all commands use.
+  - JSON is pretty and newline-terminated, YAML goes through `serde_yaml_ng` 0.10
+    (the maintained fork, F19).
+  - Tables, markdown and HTML share a `Grid`: a listing of objects is one row per
+    object with the union of its keys as columns, a single object is a
+    `field`/`value` table, a scalar or a plain list is a single `value` column, and
+    nested values are compact JSON in their cell.
+  - `--fields` projects **every** format (objects and listings) before rendering,
+    so the columns of a table and the keys of JSON/YAML agree, in the requested
+    order.
+  - A null response prints nothing (operations that answer without a body), and a
+    rendering failure is `Error::Format` (exit 1).
+  - `comfy-table` 8 needs the `custom_styling` feature for `presets::UTF8_FULL` and
+    `load_style` (v7's `load_preset` is gone); content arrangement is disabled so
+    the width is the data, not the terminal.
+- `src/cli.rs` — `OutputArgs` (`--output <FORMAT>`, validated against
+  `Format::NAMES`, default `auto`; `--fields <LIST>`, comma separated) as global
+  arguments of `build_cli()`, so they work after any command and complete like any
+  other flag (checked by hand: `--out<TAB>` → `--output`, then `auto json yaml
+  table markdown html`).
+- `lib.rs::write_value` is now the single place output happens and delegates to
+  `report::render`; nothing else prints a response.
+
+### Verified
+
+- `cargo test --all`: **121 tests** green (73 unit, 9 commands, 4 generated, 5
+  loopback, 8 completion, 6 session, 8 live completion, 6 report, …).
+- `tests/report.rs` runs the real binary against the loopback stub: piped `auto` is
+  JSON, `--output table` has borders and every column, YAML/markdown/HTML render,
+  `--fields clientId` drops the other columns (table and JSON), an unknown format
+  exits 2 and names the valid ones, and a bodyless `clients create` prints nothing
+  while succeeding.
+- `src/report.rs` unit tests cover projections and ordering, markdown `|` escaping,
+  HTML escaping of `<script>`/`&`, auto-vs-pipe, scalars, plain lists, empty lists
+  and null.
+- `cargo fmt --check`, `cargo clippy --all-targets -D warnings` (default and
+  `tag-users`), `scripts/generate.sh --check`, `cargo package --locked` clean.
+
+### Notes for the next round (Q9/Q10)
+
+- The table columns are alphabetical because `serde_json`'s map sorts keys (no
+  `preserve_order`); `--fields` is how a caller chooses an order. Enabling
+  `preserve_order` would keep the crate's struct field order if that matters later.
+- Q9's `report` command is a document, not a table: markdown/HTML with ASCII charts
+  (in-house Unicode bars or `sparklines`) over users/events/session stats; the
+  renderers here are for single responses and stay as they are.
+- Q10: README usage is current; ROADMAP still says "M0 skeleton" and
+  `doc/COMPLETION.md` (session semantics + security) does not exist yet.
+
 
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
@@ -432,3 +490,4 @@ Goal: API wiring for `--realm`, `--user-id`, `--group-id`, `--client-uuid`.
 - round 3 · Q2 · 73 turns · continue → continue · emitted clients module compiles against the real crate — …
 - round 4 · Q4 · 46 turns · continue → continue · generated commands call the API (runtime + admin from con…
 - round 5 · -- · 33 turns · continue → continue · terminal sessions — login/logout with a 0600 state file k…
+- round 6 · -- · 26 turns · continue → continue · live candidates from the API for realm/user/group/client …

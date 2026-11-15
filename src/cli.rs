@@ -17,6 +17,8 @@ use crate::version;
 pub struct Cli {
     /// Connection settings, shared by every command.
     pub connection: ConnectionArgs,
+    /// How responses are printed.
+    pub output: OutputArgs,
     /// The command that was asked for, when one was.
     pub command: Option<Invocation>,
 }
@@ -52,9 +54,11 @@ impl Cli {
     /// Reads a parsed tree.
     pub fn from_matches(matches: &ArgMatches) -> Result<Self, clap::Error> {
         let connection = ConnectionArgs::from_arg_matches(matches)?;
+        let output = OutputArgs::from_arg_matches(matches)?;
         let (words, args) = innermost(matches);
         Ok(Self {
             connection,
+            output,
             command: (!words.is_empty()).then_some(Invocation { words, args }),
         })
     }
@@ -116,6 +120,7 @@ pub fn build_cli() -> Command {
                 ),
         );
     let command = ConnectionArgs::augment_args(command);
+    let command = OutputArgs::augment_args(command);
     // `--realm` completes realm names from this terminal's session.
     let command = command.mut_arg("realm", |arg| crate::command::complete(arg, "realm"));
     crate::generated::commands()
@@ -172,6 +177,25 @@ pub struct ConnectionArgs {
         global = true
     )]
     pub password: Option<String>,
+}
+
+/// How a response is printed.
+#[derive(Debug, Args)]
+pub struct OutputArgs {
+    /// How to print the response: `auto` is a table on a terminal and JSON when
+    /// the output is piped.
+    #[arg(
+        long,
+        value_name = "FORMAT",
+        default_value = "auto",
+        value_parser = clap::builder::PossibleValuesParser::new(crate::report::Format::NAMES),
+        global = true
+    )]
+    pub output: String,
+
+    /// Print only these fields, comma separated: `--fields id,clientId`.
+    #[arg(long, value_name = "FIELDS", value_delimiter = ',', global = true)]
+    pub fields: Vec<String>,
 }
 
 /// Follows the subcommands down to the innermost one.

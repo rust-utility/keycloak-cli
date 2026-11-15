@@ -26,6 +26,7 @@ pub mod generate;
 pub mod generated;
 pub mod live;
 pub mod live_sources;
+pub mod report;
 pub mod session;
 pub mod version;
 
@@ -52,7 +53,7 @@ pub fn run(cli: Cli) -> Result<(), Error> {
         Some(invocation) => {
             let config = Config::from(&cli.connection);
             let value = client::execute(&config, invocation)?;
-            write_value(&value)
+            write_value(&value, &cli.output)
         }
     }
 }
@@ -131,15 +132,25 @@ fn info(cli: &Cli) -> Result<(), Error> {
     Ok(())
 }
 
-/// Prints a response. The output layer of Q8 replaces this with `--output`.
-fn write_value(value: &serde_json::Value) -> Result<(), Error> {
-    use std::io::Write;
+/// Prints a response in the requested format.
+fn write_value(value: &serde_json::Value, output: &cli::OutputArgs) -> Result<(), Error> {
+    use std::io::{IsTerminal, Write};
 
+    let format = report::Format::from_name(&output.output).ok_or_else(|| {
+        Error::usage(format!(
+            "unknown output format {:?}; use one of: {}",
+            output.output,
+            report::Format::NAMES.join(", ")
+        ))
+    })?;
+    let text = report::render(
+        value,
+        &output.fields,
+        format,
+        std::io::stdout().is_terminal(),
+    )?;
     let mut stdout = std::io::stdout();
-    if !value.is_null() {
-        serde_json::to_writer_pretty(&mut stdout, value)?;
-        writeln!(stdout)?;
-    }
+    stdout.write_all(text.as_bytes())?;
     stdout.flush()?;
     Ok(())
 }

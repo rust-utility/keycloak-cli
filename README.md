@@ -47,11 +47,31 @@ keycloak-cli -r other users count
 
 Realm-level commands take the realm from `-r/--realm` (or `KEYCLOAK_REALM`); deeper
 path parameters are positionals in path order, query parameters are flags, and
-`--body` takes a JSON file or `-` for standard input. Responses are printed as
-JSON on stdout, so they compose with `jq`:
+`--body` takes a JSON file or `-` for standard input.
+
+## Output
+
+Every command prints its response, and `--output` picks how:
+
+| `--output` | what you get |
+|------------|--------------|
+| `auto` (default) | a table when stdout is a terminal, JSON when piped |
+| `json` | pretty JSON |
+| `yaml` | YAML |
+| `table` | a bordered table |
+| `markdown` | a markdown table |
+| `html` | an HTML table fragment |
+
+A listing becomes one row per object, a single object becomes a `field`/`value`
+table, nested values are JSON in their cell, and `--fields id,clientId` prints only
+those columns (in that order, for every format):
 
 ```sh
-keycloak-cli clients list | jq '.[].clientId'
+keycloak-cli clients list                      # table in a terminal, JSON in a pipe
+keycloak-cli clients list | jq '.[].clientId'  # JSON is the piped default
+keycloak-cli --output yaml users list --max 5
+keycloak-cli --output table --fields clientId,enabled clients list
+keycloak-cli --output markdown groups list > groups.md
 ```
 
 ## Sessions

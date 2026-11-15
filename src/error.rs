@@ -18,6 +18,8 @@ pub enum Error {
     Json(serde_json::Error),
     /// The command line cannot be satisfied, e.g. a missing `--body`.
     Usage(String),
+    /// A response could not be rendered in the requested format.
+    Format(String),
 }
 
 impl Error {
@@ -40,7 +42,7 @@ impl Error {
                 404 => 4,
                 _ => 1,
             },
-            Error::Io(_) | Error::Json(_) | Error::Api(_) => 1,
+            Error::Io(_) | Error::Json(_) | Error::Api(_) | Error::Format(_) => 1,
         }
     }
 }
@@ -52,6 +54,7 @@ impl fmt::Display for Error {
             Error::Api(error) => write!(f, "keycloak error: {error}"),
             Error::Json(error) => write!(f, "invalid json: {error}"),
             Error::Usage(message) => write!(f, "{message}"),
+            Error::Format(message) => write!(f, "cannot render the response: {message}"),
         }
     }
 }
@@ -62,7 +65,7 @@ impl StdError for Error {
             Error::Io(error) => Some(error),
             Error::Api(error) => Some(error),
             Error::Json(error) => Some(error),
-            Error::Usage(_) => None,
+            Error::Usage(_) | Error::Format(_) => None,
         }
     }
 }
@@ -101,6 +104,13 @@ mod tests {
         let error = Error::from(std::io::Error::new(std::io::ErrorKind::NotFound, "gone"));
         assert!(error.to_string().contains("gone"));
         assert!(error.source().is_some());
+    }
+
+    #[test]
+    fn a_format_error_is_a_failure() {
+        let error = Error::Format("no such template".to_owned());
+        assert!(error.to_string().contains("cannot render"), "{error}");
+        assert_eq!(error.exit_code(), 1);
     }
 
     #[test]
