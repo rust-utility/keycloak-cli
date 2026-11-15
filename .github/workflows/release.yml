@@ -46,6 +46,10 @@ jobs:
 
       - name: Build
         env:
+          # The repository pins `channel = "1.88"` in rust-toolchain.toml, which
+          # rustup treats as a different toolchain from the `1.88.0` the action
+          # installs; without this the musl std targets added above are invisible.
+          RUSTUP_TOOLCHAIN: 1.88.0
           # musl targets need the musl linker wrapper for the same architecture.
           CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
           CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
