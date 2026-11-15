@@ -77,6 +77,9 @@ fn self_update(invocation: &Invocation) -> Result<(), Error> {
         update::Outcome::Available { current, latest } => {
             println!("keycloak-cli {latest} is available (current {current})");
         }
+        update::Outcome::Updated { from, to, path } if from == to => {
+            println!("reinstalled keycloak-cli {to} ({})", path.display());
+        }
         update::Outcome::Updated { from, to, path } => {
             println!("updated keycloak-cli {from} -> {to} ({})", path.display());
         }

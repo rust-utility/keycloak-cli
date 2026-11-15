@@ -76,12 +76,14 @@ A broken release cannot be republished under the same version, so it is yanked a
 followed by a fix release (`26.8.101` → `26.8.102`) with the same recipe:
 
 ```sh
-gh workflow run yank --ref main -f version=26.8.101
+gh workflow run publish --ref main -f yank=26.8.101
 ```
 
-The `yank` workflow uses the same trusted publisher, so no token is handled. Yanked
-versions stay installable when pinned exactly; `cargo install keycloak-cli` and
-`^` requirements skip them.
+The yank job lives in `publish.yml` because the trusted publisher is configured for
+that workflow file only; it reuses the same OIDC token exchange, so no token is
+handled. Yanked versions stay installable when pinned exactly; `cargo install
+keycloak-cli` and `^` requirements skip them. `26.8.101` was yanked because that
+build had no TLS backend.
 
 ## Verifying a release
 
