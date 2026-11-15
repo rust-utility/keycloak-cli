@@ -21,8 +21,9 @@ jobs:
         include:
           - target: aarch64-apple-darwin
             os: macos-14
+          # Cross-built on the arm64 runner: macos-13 is retired.
           - target: x86_64-apple-darwin
-            os: macos-13
+            os: macos-14
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
           - target: aarch64-unknown-linux-musl
@@ -44,6 +45,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - name: Build
+        env:
+          # musl targets need the musl linker wrapper for the same architecture.
+          CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER: musl-gcc
         run: cargo build --release --locked --target ${{ matrix.target }}
 
       - name: Package the binary
