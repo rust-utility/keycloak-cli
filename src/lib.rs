@@ -25,6 +25,7 @@ pub mod error;
 pub mod generate;
 pub mod generated;
 pub mod live;
+pub mod live_sources;
 pub mod session;
 pub mod version;
 

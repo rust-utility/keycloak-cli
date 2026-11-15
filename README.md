@@ -95,6 +95,15 @@ on every shell start, which is deliberate: the completion protocol between shell
 and binary is documented as unstable by clap, so re-sourcing (or re-running
 `init`) after an upgrade or a move is what keeps completion working.
 
+After `login` in a terminal, completion also offers that session's objects:
+realm names for `--realm`, user names for user parameters, and group/client ids
+for theirs (`clients get <TAB>` completes from the realm's clients). A terminal
+that has not logged in offers none of them. Every TAB is bounded: values come from
+the same endpoints the commands use, they are cached for 60 s on disk
+(`$XDG_STATE_HOME/keycloak-cli/completion`) so the next TAB makes no request, the
+lookup has a 1.2 s timeout, at most 100 candidates are printed, and any failure is
+silent. `KEYCLOAK_CLI_NO_LIVE_COMPLETION=1` turns live completion off.
+
 ## Exit codes
 
 | code | meaning |

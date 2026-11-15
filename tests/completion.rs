@@ -82,9 +82,10 @@ fn completes_the_shells_of_init() {
 }
 
 #[test]
-fn a_positional_falls_back_to_flags_until_live_values_exist() {
-    // clap offers the flags at a value position; live values for path parameters
-    // (client uuids, user names) are Q7, and until then nothing else is offered.
+fn a_positional_without_a_session_falls_back_to_flags() {
+    // A path parameter has a live source, but this process has no session, so the
+    // only candidates are the flags clap offers at every value position. The live
+    // candidates are covered in `tests/live_completion.rs`.
     let candidates = candidates(&["keycloak-cli", "clients", "get", ""]);
     assert!(
         candidates

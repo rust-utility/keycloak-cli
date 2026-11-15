@@ -14,6 +14,7 @@ use std::io::Read as _;
 
 use clap::parser::ValueSource;
 use clap::{Arg, ArgAction, ArgMatches, Command};
+use clap_complete::{ArgValueCompleter, CompletionCandidate};
 use serde::de::DeserializeOwned;
 
 use crate::error::Error;
@@ -131,13 +132,12 @@ fn describe(mut command: Command, spec: &CommandSpec) -> Command {
     }
 
     for (index, positional) in spec.positionals.iter().enumerate() {
-        command = command.arg(
-            Arg::new(positional.id)
-                .index(index + 1)
-                .required(true)
-                .value_name(positional.value_name)
-                .help(positional.help),
-        );
+        let arg = Arg::new(positional.id)
+            .index(index + 1)
+            .required(true)
+            .value_name(positional.value_name)
+            .help(positional.help);
+        command = command.arg(complete(arg, positional.id));
     }
     for flag in spec.flags {
         let arg = Arg::new(flag.id)
@@ -153,7 +153,7 @@ fn describe(mut command: Command, spec: &CommandSpec) -> Command {
                 .num_args(1..)
                 .value_parser(clap::value_parser!(String)),
         };
-        command = command.arg(arg);
+        command = command.arg(complete(arg, flag.id));
     }
     if spec.body {
         command = command.arg(
@@ -164,6 +164,24 @@ fn describe(mut command: Command, spec: &CommandSpec) -> Command {
         );
     }
     command
+}
+
+/// Attaches live completion to `arg` when its parameter has a source.
+///
+/// The completer only sees the word being completed (F12), so the sources get the
+/// session (server, realm, token) from the environment, and a terminal without a
+/// session offers no values at all.
+pub(crate) fn complete(arg: Arg, parameter: &'static str) -> Arg {
+    if !crate::live::global().has(parameter) {
+        return arg;
+    }
+    arg.add(ArgValueCompleter::new(move |current: &std::ffi::OsStr| {
+        crate::live::global()
+            .candidates(parameter, &current.to_string_lossy())
+            .into_iter()
+            .map(CompletionCandidate::new)
+            .collect()
+    }))
 }
 
 /// Whether `words` name one of `specs`.

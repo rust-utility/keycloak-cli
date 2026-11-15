@@ -8,8 +8,11 @@
 //! slower or noisier than not having it.
 
 use std::collections::BTreeMap;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex, OnceLock};
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+
+use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
 
@@ -38,6 +41,10 @@ pub struct Registry {
     ttl: Duration,
     timeout: Duration,
     limit: usize,
+    /// Where answers survive between processes (one process per TAB), if anywhere.
+    disk: Option<PathBuf>,
+    /// Distinguishes sessions, servers and realms in the disk cache.
+    namespace: String,
 }
 
 /// A cached answer and when it was fetched.
@@ -56,7 +63,26 @@ impl Registry {
             ttl,
             timeout,
             limit: MAX_CANDIDATES,
+            disk: None,
+            namespace: String::new(),
         }
+    }
+
+    /// Keeps fresh answers on disk in `dir`, so the next TAB (which is another
+    /// process) does not pay for the same request again.
+    pub fn with_disk_cache(
+        mut self,
+        dir: impl Into<PathBuf>,
+        namespace: impl Into<String>,
+    ) -> Self {
+        self.disk = Some(dir.into());
+        self.namespace = namespace.into();
+        self
+    }
+
+    /// Whether `parameter` has a source.
+    pub fn has(&self, parameter: &str) -> bool {
+        self.sources.contains_key(parameter)
     }
 
     /// Caps the number of candidates returned.
@@ -104,7 +130,7 @@ impl Registry {
         candidates
     }
 
-    /// The values of `parameter`, from the cache when it is fresh.
+    /// The values of `parameter`, from a cache when one is fresh.
     fn values(&self, parameter: &str) -> Option<Vec<String>> {
         let source = self.sources.get(parameter)?;
 
@@ -116,18 +142,123 @@ impl Registry {
             }
         }
 
+        if let Some(values) = self.read_disk(parameter) {
+            self.remember(parameter, &values);
+            return Some(values);
+        }
+
         let values = fetch(source, self.timeout)?;
+        self.remember(parameter, &values);
+        self.write_disk(parameter, &values);
+        Some(values)
+    }
+
+    /// Puts a fresh answer in the in-memory cache.
+    fn remember(&self, parameter: &str, values: &[String]) {
         if let Ok(mut cache) = self.cache.lock() {
             cache.insert(
                 parameter.to_owned(),
                 Entry {
-                    values: values.clone(),
+                    values: values.to_vec(),
                     at: Instant::now(),
                 },
             );
         }
-        Some(values)
     }
+
+    /// The file an answer would be cached in.
+    fn disk_path(&self, parameter: &str) -> Option<PathBuf> {
+        let dir = self.disk.as_ref()?;
+        let mut hash = 0xcbf2_9ce4_8422_2325u64;
+        for byte in self.namespace.as_bytes() {
+            hash ^= u64::from(*byte);
+            hash = hash.wrapping_mul(0x100_0000_01b3);
+        }
+        let name: String = parameter
+            .chars()
+            .map(|character| {
+                if character.is_ascii_alphanumeric() || character == '-' || character == '_' {
+                    character
+                } else {
+                    '_'
+                }
+            })
+            .collect();
+        Some(dir.join(format!("{name}-{hash:016x}.json")))
+    }
+
+    /// A fresh answer from the disk cache, if there is one.
+    fn read_disk(&self, parameter: &str) -> Option<Vec<String>> {
+        let path = self.disk_path(parameter)?;
+        let text = std::fs::read_to_string(&path).ok()?;
+        let cached: Cached = serde_json::from_str(&text).ok()?;
+        let now = unix_now();
+        if now.saturating_sub(cached.at) >= self.ttl.as_secs() {
+            return None;
+        }
+        Some(cached.values)
+    }
+
+    /// Stores a fresh answer for the next TAB.
+    fn write_disk(&self, parameter: &str, values: &[String]) {
+        let Some(path) = self.disk_path(parameter) else {
+            return;
+        };
+        let Some(dir) = path.parent() else {
+            return;
+        };
+        if std::fs::create_dir_all(dir).is_err() {
+            return;
+        }
+        let cached = Cached {
+            at: unix_now(),
+            values: values.to_vec(),
+        };
+        if let Ok(text) = serde_json::to_string(&cached) {
+            let _ = std::fs::write(&path, text);
+        }
+    }
+}
+
+/// The on-disk shape of a cached answer.
+#[derive(Deserialize, Serialize)]
+struct Cached {
+    /// Unix seconds at which the answer was fetched.
+    at: u64,
+    values: Vec<String>,
+}
+
+/// Unix seconds now.
+fn unix_now() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|elapsed| elapsed.as_secs())
+        .unwrap_or_default()
+}
+
+/// The process-wide registry: the Keycloak sources, a 60 s cache and a 1.2 s
+/// budget per TAB.
+///
+/// Completion runs in a process the shell starts, so the disk cache is what makes
+/// a second TAB fast: the shell pays for the spawn, the file read and nothing else.
+pub fn global() -> &'static Registry {
+    static REGISTRY: OnceLock<Registry> = OnceLock::new();
+    REGISTRY.get_or_init(|| {
+        let mut registry = Registry::new(Duration::from_secs(60), Duration::from_millis(1200));
+        if let Ok(dir) = crate::session::state_dir() {
+            let namespace = crate::session::current_id().unwrap_or_default();
+            registry = registry.with_disk_cache(dir.join("completion"), namespace);
+        }
+        for (parameter, source) in crate::live_sources::sources() {
+            registry.register(parameter, source);
+        }
+        registry
+    })
+}
+
+/// Where the disk cache of `registry` lives, for tests and diagnostics.
+pub fn cache_dir(registry: &Registry) -> Option<&Path> {
+    registry.disk.as_deref()
 }
 
 /// Calls `source`, giving up after `timeout`.
@@ -292,6 +423,67 @@ mod tests {
             Some(value) => std::env::set_var(KILL_SWITCH, value),
             None => std::env::remove_var(KILL_SWITCH),
         }
+    }
+
+    /// A directory of its own for a disk cache.
+    fn cache_dir_for(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "keycloak-cli-completion-{name}-{}-{}",
+            std::process::id(),
+            unix_now()
+        ));
+        std::fs::create_dir_all(&dir).expect("the cache directory exists");
+        dir
+    }
+
+    #[test]
+    fn a_fresh_disk_answer_is_shared_with_the_next_process() {
+        let _guard = exclusive();
+        let dir = cache_dir_for("fresh");
+
+        let (fake, calls) = Fake::new(&["alpha"]);
+        let registry = registry_for(Duration::from_secs(60), Duration::from_secs(5), fake)
+            .with_disk_cache(&dir, "session-1");
+        assert_eq!(registry.candidates("client_uuid", ""), ["alpha"]);
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+        assert!(cache_dir(&registry).is_some());
+
+        // The next TAB is another process: a new registry, a source that must not
+        // be asked because the disk answer is still fresh.
+        let (fake, calls) = Fake::new(&["should-not-be-used"]);
+        let registry = registry_for(Duration::from_secs(60), Duration::from_secs(5), fake)
+            .with_disk_cache(&dir, "session-1");
+        assert_eq!(registry.candidates("client_uuid", ""), ["alpha"]);
+        assert_eq!(calls.load(Ordering::SeqCst), 0, "served from disk");
+
+        // Another session (another server, another realm) has its own answers.
+        let (fake, calls) = Fake::new(&["beta"]);
+        let registry = registry_for(Duration::from_secs(60), Duration::from_secs(5), fake)
+            .with_disk_cache(&dir, "session-2");
+        assert_eq!(registry.candidates("client_uuid", ""), ["beta"]);
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+
+        std::fs::remove_dir_all(&dir).ok();
+    }
+
+    #[test]
+    fn a_stale_disk_answer_is_fetched_again() {
+        let _guard = exclusive();
+        let dir = cache_dir_for("stale");
+
+        let (fake, _) = Fake::new(&["alpha"]);
+        let registry = registry_for(Duration::from_secs(60), Duration::from_secs(5), fake)
+            .with_disk_cache(&dir, "session-1");
+        registry.candidates("client_uuid", "");
+
+        // A zero TTL makes every stored answer stale.
+        let (fake, calls) = Fake::new(&["beta"]);
+        let registry = registry_for(Duration::ZERO, Duration::from_secs(5), fake)
+            .with_disk_cache(&dir, "session-1");
+        assert_eq!(registry.candidates("client_uuid", ""), ["beta"]);
+        assert_eq!(calls.load(Ordering::SeqCst), 1);
+
+        std::fs::remove_dir_all(&dir).ok();
     }
 
     #[test]

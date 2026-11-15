@@ -22,6 +22,11 @@ pub struct Stub {
 impl Stub {
     /// Starts a stub that answers `responses` (status, body) in order.
     pub fn start(responses: Vec<(u16, String)>) -> Self {
+        Self::start_after(std::time::Duration::ZERO, responses)
+    }
+
+    /// Starts a stub that waits `delay` before answering, to exercise timeouts.
+    pub fn start_after(delay: std::time::Duration, responses: Vec<(u16, String)>) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").expect("the stub binds a port");
         let address = listener.local_addr().expect("the stub has an address");
         let requests = Arc::new(Mutex::new(Vec::new()));
@@ -31,6 +36,7 @@ impl Stub {
                 let Ok((stream, _)) = listener.accept() else {
                     return;
                 };
+                std::thread::sleep(delay);
                 answer(stream, status, &body, &seen);
             }
         });

@@ -116,6 +116,8 @@ pub fn build_cli() -> Command {
                 ),
         );
     let command = ConnectionArgs::augment_args(command);
+    // `--realm` completes realm names from this terminal's session.
+    let command = command.mut_arg("realm", |arg| crate::command::complete(arg, "realm"));
     crate::generated::commands()
         .into_iter()
         .fold(command, |command, generated| command.subcommand(generated))

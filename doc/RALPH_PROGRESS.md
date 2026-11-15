@@ -359,9 +359,71 @@ generated arguments (which is also what M4 and M5 need). Verified: 91 tests gree
   (`/realms`, `/users`, `/groups`, `/clients`).
 - Output is still pretty JSON; Q8's `--output` replaces `lib.rs::write_value`.
 
+## Round 6 — Q7 (second half): live candidates from the API
+
+Goal: API wiring for `--realm`, `--user-id`, `--group-id`, `--client-uuid`.
+**Done: M4 and M5 are met and measured.**
+
+### What exists now
+
+- `src/live_sources.rs` — four sources, all reading this terminal's session (never a
+  password, so a completion subprocess cannot prompt): realms from `get()` (i.e.
+  `GET /admin/realms`), users from `realm_users_get` (user names — Keycloak accepts
+  a user name where it accepts an id), groups and clients from their listing
+  endpoints (`max=100`, brief representations) with the internal ids, because the
+  client path parameter is the id and not the `clientId` (the help of `clients get`
+  says so).
+- `src/live.rs` — a disk cache next to the in-memory one, because one process
+  answers one TAB: fresh answers are written to
+  `$XDG_STATE_HOME/keycloak-cli/completion/` (60 s TTL, keyed by a hash of the
+  session id so other terminals, servers and realms do not share), and a second TAB
+  reads the file instead of the API (F32). `global()` wires the sources, the 60 s
+  TTL, the 1.2 s timeout and the cache; `has()` tells the tree which arguments get
+  a completer.
+- `src/command.rs` — `complete(arg, parameter)` attaches an `ArgValueCompleter` to
+  every positional and flag whose id has a source; `build_cli()` attaches one to the
+  global `--realm` (so `-r <TAB>` lists realms).
+- `tests/live_completion.rs` (8 tests) drives the real binary the way a shell does,
+  with a session file and the loopback stub: user names for `users get <TAB>`
+  (with `max=100` and the session's bearer token), realms for `-r <TAB>`, ids for
+  groups and clients, the second TAB served from the disk cache with zero further
+  requests, another session id in the same state directory getting nothing and
+  sending nothing, a slow API cut off, and a 500 leaving no candidates and an empty
+  stderr.
+
+### Measured (local stub, debug build)
+
+| case | time | candidates | requests |
+|------|------|-----------|----------|
+| cold TAB | 42 ms | 20 | 1 |
+| warm TAB (disk cache) | 38 ms | 20 | 0 |
+| API that answers after 3 s | 1262 ms (timeout) | 0 | 1, abandoned |
+| no session | ~10 ms | 0 | 0 |
+
+### Verified
+
+- `cargo test --all`: **103 tests** green (58 unit, 9 commands, 4 generated, 5
+  loopback, 8 completion, 6 session, 8 live completion, 5 support-driven others).
+- `cargo fmt --check`, `cargo clippy --all-targets -D warnings`,
+  `scripts/generate.sh --check` clean; `keycloak-cli --help` still lists 36 groups.
+
+### Notes for the next round (Q8 — output layer)
+
+- `lib.rs::write_value` is the only place output is produced: it prints pretty JSON
+  and nothing for `DefaultResponse` operations. Q8 replaces it with a `Report`
+  value and `--output json|yaml|table|markdown|html` (`auto` = table on a TTY,
+  JSON when piped), with `--fields` projection; `serde_json::Value` is the shape the
+  generated dispatch already returns.
+- The registry's `Source` values are plain `Vec<String>`; richer candidates (value
+  plus help text) would need a `CompletionCandidate`-shaped source if the id/name
+  distinction in groups and clients ever needs showing.
+- M6/M7 remain: the output layer and `report` (comfy-table, serde_yaml_ng,
+  pulldown-cmark/termimad, minijinja, sparklines — all ≤ 1.88 per F20/F21).
+
 
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
 - round 2 · Q2 · 32 turns · continue → continue · naming and collision rules for the generated tree, with u…
 - round 3 · Q2 · 73 turns · continue → continue · emitted clients module compiles against the real crate — …
 - round 4 · Q4 · 46 turns · continue → continue · generated commands call the API (runtime + admin from con…
+- round 5 · -- · 33 turns · continue → continue · terminal sessions — login/logout with a 0600 state file k…
