@@ -402,6 +402,11 @@ Goal: API wiring for `--realm`, `--user-id`, `--group-id`, `--client-uuid`.
 
 ### Verified
 
+- A `--no-default-features --features tag-users` build broke at first: the live
+  sources call methods of tags that build does not enable. Each source (and its
+  import, `PAGE` and the helpers) is now behind the feature of the method it calls,
+  so every feature combination builds and clippy is clean for
+  `--no-default-features`, `--features tag-users` and the default set.
 - `cargo test --all`: **103 tests** green (58 unit, 9 commands, 4 generated, 5
   loopback, 8 completion, 6 session, 8 live completion, 5 support-driven others).
 - `cargo fmt --check`, `cargo clippy --all-targets -D warnings`,

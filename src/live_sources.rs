@@ -12,30 +12,83 @@
 //! and the internal ids of groups and clients — the client path parameter is
 //! explicitly the id, not the `clientId` (see the help of `clients get`).
 
-use std::future::Future;
 use std::sync::Arc;
 
+use crate::live::Source;
+
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
+use std::future::Future;
+
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 use keycloak::prelude::reqwest;
+
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 use keycloak::KeycloakAdmin;
 
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 use crate::error::Error;
-use crate::live::Source;
+
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 use crate::session::{self, StoredToken};
 
 /// How many values a listing asks for.
+#[cfg(any(feature = "tag-clients", feature = "tag-groups", feature = "tag-users"))]
 const PAGE: i32 = 100;
 
 /// The parameters that have a live source, in command order.
+///
+/// A source exists only when the build enabled the tag whose method it calls, so
+/// `--no-default-features --features tag-users` still compiles and completes the
+/// user names it can actually list.
+// Each entry is behind the feature that provides the method it calls, which is
+// why the list is built by pushes instead of a literal.
+#[allow(clippy::vec_init_then_push)]
 pub fn sources() -> Vec<(&'static str, Arc<dyn Source>)> {
-    vec![
-        ("realm", Arc::new(Realms) as Arc<dyn Source>),
-        ("user_id", Arc::new(Users) as Arc<dyn Source>),
-        ("group_id", Arc::new(Groups) as Arc<dyn Source>),
-        ("client_uuid", Arc::new(Clients) as Arc<dyn Source>),
-    ]
+    #[allow(unused_mut)]
+    let mut sources: Vec<(&'static str, Arc<dyn Source>)> = Vec::new();
+    #[cfg(feature = "tag-realms-admin")]
+    sources.push(("realm", Arc::new(Realms) as Arc<dyn Source>));
+    #[cfg(feature = "tag-users")]
+    sources.push(("user_id", Arc::new(Users) as Arc<dyn Source>));
+    #[cfg(feature = "tag-groups")]
+    sources.push(("group_id", Arc::new(Groups) as Arc<dyn Source>));
+    #[cfg(feature = "tag-clients")]
+    sources.push(("client_uuid", Arc::new(Clients) as Arc<dyn Source>));
+    sources
 }
 
 /// The admin client of this terminal's session.
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 fn admin() -> Result<(KeycloakAdmin<StoredToken>, String), Error> {
     let stored = session::lookup()?.ok_or_else(|| {
         Error::usage("no session in this terminal: run keycloak-cli login for live completion")
@@ -46,6 +99,12 @@ fn admin() -> Result<(KeycloakAdmin<StoredToken>, String), Error> {
 }
 
 /// Runs `future` on a runtime of its own (completion has none).
+#[cfg(any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+))]
 fn block_on<T>(future: impl Future<Output = T>) -> Result<T, Error> {
     let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -55,8 +114,10 @@ fn block_on<T>(future: impl Future<Output = T>) -> Result<T, Error> {
 }
 
 /// Realm names, from `GET /admin/realms`.
+#[cfg(feature = "tag-realms-admin")]
 struct Realms;
 
+#[cfg(feature = "tag-realms-admin")]
 impl Source for Realms {
     fn values(&self) -> Result<Vec<String>, Error> {
         let (admin, _) = admin()?;
@@ -66,8 +127,10 @@ impl Source for Realms {
 }
 
 /// User names of the session's realm, from `GET /admin/realms/{realm}/users`.
+#[cfg(feature = "tag-users")]
 struct Users;
 
+#[cfg(feature = "tag-users")]
 impl Source for Users {
     fn values(&self) -> Result<Vec<String>, Error> {
         let (admin, realm) = admin()?;
@@ -95,8 +158,10 @@ impl Source for Users {
 }
 
 /// Group ids of the session's realm, from `GET /admin/realms/{realm}/groups`.
+#[cfg(feature = "tag-groups")]
 struct Groups;
 
+#[cfg(feature = "tag-groups")]
 impl Source for Groups {
     fn values(&self) -> Result<Vec<String>, Error> {
         let (admin, realm) = admin()?;
@@ -116,8 +181,10 @@ impl Source for Groups {
 }
 
 /// Client ids of the session's realm, from `GET /admin/realms/{realm}/clients`.
+#[cfg(feature = "tag-clients")]
 struct Clients;
 
+#[cfg(feature = "tag-clients")]
 impl Source for Clients {
     fn values(&self) -> Result<Vec<String>, Error> {
         let (admin, realm) = admin()?;
@@ -134,17 +201,34 @@ impl Source for Clients {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, any(
+    feature = "tag-clients",
+    feature = "tag-groups",
+    feature = "tag-realms-admin",
+    feature = "tag-users"
+)))]
 mod tests {
     use super::*;
 
     #[test]
+    #[cfg(all(
+        feature = "tag-clients",
+        feature = "tag-groups",
+        feature = "tag-realms-admin",
+        feature = "tag-users"
+    ))]
     fn the_generated_parameters_have_sources() {
         let parameters: Vec<&str> = sources().iter().map(|(parameter, _)| *parameter).collect();
         assert_eq!(parameters, ["realm", "user_id", "group_id", "client_uuid"]);
     }
 
     #[test]
+    #[cfg(any(
+        feature = "tag-clients",
+        feature = "tag-groups",
+        feature = "tag-realms-admin",
+        feature = "tag-users"
+    ))]
     fn without_a_session_there_is_nothing_to_offer() {
         // The test harness has no session: every source must fail quietly rather
         // than try to prompt or panic.
