@@ -498,6 +498,7 @@ dependencies = [
 name = "keycloak-cli"
 version = "26.8.100"
 dependencies = [
+ "async-trait",
  "clap",
  "clap_complete",
  "heck",

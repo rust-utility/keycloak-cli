@@ -24,6 +24,7 @@ pub mod config;
 pub mod error;
 pub mod generate;
 pub mod generated;
+pub mod session;
 pub mod version;
 
 pub use cli::{Cli, Invocation};
@@ -40,12 +41,61 @@ pub fn run(cli: Cli) -> Result<(), Error> {
         None => info(&cli),
         Some(invocation) if invocation.words == ["info"] => info(&cli),
         Some(invocation) if invocation.words == ["init"] => init(invocation),
+        Some(invocation) if invocation.words == ["session-id"] => {
+            println!("{}", session::id_for_terminal());
+            Ok(())
+        }
+        Some(invocation) if invocation.words == ["login"] => login(&cli),
+        Some(invocation) if invocation.words == ["logout"] => logout(),
         Some(invocation) => {
             let config = Config::from(&cli.connection);
             let value = client::execute(&config, invocation)?;
             write_value(&value)
         }
     }
+}
+
+/// Logs in for this terminal and reports where the token went.
+fn login(cli: &Cli) -> Result<(), Error> {
+    use std::io::Write;
+
+    let config = Config::from(&cli.connection);
+    let (session, path) = client::login(&config)?;
+    let rows = [
+        ("session", session::current_id().unwrap_or_default()),
+        ("server", session.server.clone()),
+        ("realm", session.realm.clone()),
+        ("user", session.user.clone()),
+        (
+            "expires",
+            format!("in {}s", session.remaining(session::now())),
+        ),
+        ("state", path.display().to_string()),
+    ];
+    let width = rows.iter().map(|(name, _)| name.len()).max().unwrap_or(0);
+    let mut stdout = std::io::stdout();
+    for (name, value) in rows {
+        writeln!(stdout, "{name:<width$}  {value}")?;
+    }
+    stdout.flush()?;
+    Ok(())
+}
+
+/// Forgets this terminal's token.
+fn logout() -> Result<(), Error> {
+    use std::io::Write;
+
+    let mut stdout = std::io::stdout();
+    match client::logout()? {
+        Some(session) => writeln!(
+            stdout,
+            "logged out of {} (realm {}) as {}",
+            session.server, session.realm, session.user
+        )?,
+        None => writeln!(stdout, "no session in this terminal")?,
+    }
+    stdout.flush()?;
+    Ok(())
 }
 
 /// Prints the line that registers completion in a shell.

@@ -87,6 +87,23 @@ pub fn build_cli() -> Command {
                 .about("Show the effective connection configuration (secrets redacted)."),
         )
         .subcommand(
+            Command::new("login")
+                .about("Log in for this terminal and store the token for later commands.")
+                .long_about(
+                    "Logs in with the configured user and password and stores the token under this \
+                     terminal's session, which `init` exports. Later commands and completion in this \
+                     terminal then use it, so the password is only needed here.",
+                ),
+        )
+        .subcommand(
+            Command::new("logout").about("Forget the stored token of this terminal."),
+        )
+        .subcommand(
+            Command::new("session-id").hide(true).about(
+                "Print the id of this terminal's session (run by `init` at shell start).",
+            ),
+        )
+        .subcommand(
             Command::new("init")
                 .about("Print the line to add to a shell's startup file for completions.")
                 .arg(

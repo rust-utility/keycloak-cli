@@ -54,6 +54,26 @@ JSON on stdout, so they compose with `jq`:
 keycloak-cli clients list | jq '.[].clientId'
 ```
 
+## Sessions
+
+`login` stores a token for the terminal you are in, so the password is typed once
+per terminal and not at all in the scripts and completions that follow:
+
+```sh
+keycloak-cli login             # uses --server/--realm/--user/--password or KEYCLOAK_*
+keycloak-cli clients list      # no password needed here
+keycloak-cli logout            # forget it
+```
+
+Each terminal gets its own session: `keycloak-cli init <shell>` exports
+`KEYCLOAK_CLI_SESSION` (derived from the tty, or from the process when there is
+none), and `login` stores the token under that id in
+`$XDG_STATE_HOME/keycloak-cli/sessions.json` — mode 0600 in a 0700 directory,
+because it holds a bearer token. Another terminal, or a shell that never ran
+`init`, has no session and asks for a password as before. A stored token is used
+until it expires; after that, `login` again. `KEYCLOAK_CLI_STATE_DIR` moves the
+state directory (tests, sandboxes).
+
 ## Shell completion
 
 Completion is dynamic: the shell asks the binary, so candidates always match the

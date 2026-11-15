@@ -279,7 +279,67 @@ type error in a generated module proved the modules are really compiled.
   `realm`, …), which is the key a completion registry should use (F12, F15).
 - Output is still pretty JSON; Q8's `--output` replaces `lib.rs::write_value`.
 
+## Round 5 — Q6: terminal sessions
+
+Goal: `login` writes a 0600 state file keyed by tty+session with expiry, `init`
+exports `KEYCLOAK_CLI_SESSION`, `logout` removes it. **Done, and commands now use
+the stored token instead of the password.**
+
+### What exists now
+
+- `src/session.rs` — `Session { tty, server, realm, user, token, expires_at, created_at }`
+  in `$XDG_STATE_HOME/keycloak-cli/sessions.json`, written 0600 inside a 0700
+  directory (an existing file's mode is fixed too), expired records pruned on
+  save, the token redacted by a hand-written `Debug`.
+  `id_for_terminal()` derives the key from the tty (`tty:/dev/pts/42`) or, without
+  one, from pid+nanoseconds; env overrides `KEYCLOAK_CLI_SESSION`,
+  `KEYCLOAK_CLI_STATE_DIR`, `KEYCLOAK_CLI_TTY` make it testable and sandboxable.
+  `StoredToken` implements the crate's `KeycloakTokenSupplier` (hence the
+  `async-trait` dependency) so the admin client can be built from a stored token.
+- `src/client.rs` — `Admin::{Session, Password}`: `connect` prefers a valid session
+  and only falls back to `KeycloakAdminToken::acquire`; `login` acquires a token,
+  stores it with `expires_in`, and returns the session plus the file it wrote;
+  `logout` removes it.
+- `login`/`logout`/`session-id` subcommands (`session-id` is hidden; `init` runs it
+  at shell start). `init` now prints two lines: `export
+  KEYCLOAK_CLI_SESSION="$(… session-id)"` and the completion registration.
+- `tests/support/mod.rs` — the loopback stub and a `binary()` runner shared by
+  `tests/loopback.rs` and the new `tests/session.rs`; the session tests run the
+  real binary with a state directory of their own.
+
+### Verified
+
+- `cargo test --all`: **84 tests** green (49 unit incl. 7 session tests, 9 commands,
+  4 generated, 5 loopback, 8 completion, 6 session integration).
+- `tests/session.rs`: login writes a file with mode 0600 containing the token and
+  the tty; a later command in the same terminal sends *only* the API request with
+  `authorization: bearer stub-token` (the stub sees 2 requests total, one token
+  exchange); another terminal with no password exits 2 with a `keycloak-cli login`
+  hint and sends nothing; `logout` empties the file and a second `logout` says
+  "no session"; an expired record is ignored without a request;
+  `session-id` prints `tty:/dev/pts/7`; `init bash` prints the export line before
+  the completion line.
+- Manual: `eval "$(keycloak-cli init bash)"` sets `KEYCLOAK_CLI_SESSION` and keeps
+  TAB completion working (here the id is `pid:…` because the harness has no tty).
+- `cargo fmt --check`, `cargo clippy --all-targets -D warnings`,
+  `scripts/generate.sh --check` clean.
+
+### Notes for the next round (Q7 — live completion)
+
+- The session is the value source for completers: `session::lookup()` gives the
+  token, `client` gives the client, and `KEYCLOAK_CLI_SESSION` is inherited by the
+  completion subprocess (F11) — the tty is not, so lookups must key on the id.
+- `tests/completion.rs` currently pins "a positional falls back to flags"; Q7
+  replaces that with `--realm`, `--user-id`, `--group-id`, `--client-uuid`
+  candidates, a TTL cache, a hard timeout and silent failure (F12, F14, F15), with
+  the M5 budget (cold ≤ ~1.5 s, warm ≤ ~100 ms).
+- `tests/support/mod.rs` can serve the paginated endpoints for those tests
+  (`/realms`, `/users`, `/groups`, `/clients`).
+- Output is still pretty JSON; Q8's `--output` replaces `lib.rs::write_value`.
+
+
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
 - round 2 · Q2 · 32 turns · continue → continue · naming and collision rules for the generated tree, with u…
 - round 3 · Q2 · 73 turns · continue → continue · emitted clients module compiles against the real crate — …
+- round 4 · Q4 · 46 turns · continue → continue · generated commands call the API (runtime + admin from con…

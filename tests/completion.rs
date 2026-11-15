@@ -125,9 +125,22 @@ fn init_prints_the_line_for_each_shell() {
             "init {shell}: {}",
             String::from_utf8_lossy(&output.stderr)
         );
-        let line = String::from_utf8(output.stdout).expect("the line is utf-8");
-        assert!(line.starts_with(expected), "init {shell} printed {line:?}");
-        assert!(line.contains(BIN), "init {shell} printed {line:?}");
+        let lines = String::from_utf8(output.stdout).expect("the lines are utf-8");
+        let completion = lines.lines().last().expect("init prints a line").to_owned();
+        assert!(
+            completion.starts_with(expected),
+            "init {shell} printed {completion:?}"
+        );
+        assert!(
+            completion.contains(BIN),
+            "init {shell} printed {completion:?}"
+        );
+        // The first line makes the terminal a session, before completion runs.
+        assert!(
+            lines.starts_with("export KEYCLOAK_CLI_SESSION=")
+                || lines.starts_with("set -gx KEYCLOAK_CLI_SESSION"),
+            "init {shell} printed {lines:?}"
+        );
     }
 }
 

@@ -39,14 +39,17 @@ pub fn shell(name: &str) -> Option<Shell> {
 /// The shells `init` accepts, for help and error messages.
 pub const SHELLS: &[&str] = &["bash", "elvish", "fish", "powershell", "zsh"];
 
-/// The line to add to a shell's startup file.
+/// The lines to add to a shell's startup file.
 ///
-/// The binary path is written out, because the line runs before `PATH` is
-/// necessarily useful; re-running `init` (or re-sourcing the line) is how a moved
-/// or upgraded binary is picked up.
+/// Two things happen on every shell start: the terminal's session id is exported
+/// (so `login`, later commands and completion subprocesses agree on which terminal
+/// they belong to) and completion is registered. The binary path is written out,
+/// because both run before `PATH` is necessarily useful; re-running `init` (or
+/// re-sourcing the lines) is how a moved or upgraded binary is picked up.
 pub fn init(shell: Shell, program: &Path) -> String {
-    let program = program.display();
-    match shell {
+    let program = program.display().to_string();
+    let session = session_export(shell, &program);
+    let completion = match shell {
         // `source <(…)` defines the function in a subshell on bash 3.2 (still the
         // default shell on macOS), so the registration is evaluated instead.
         Shell::Bash => format!("eval \"$(COMPLETE=bash {program})\""),
@@ -57,6 +60,19 @@ pub fn init(shell: Shell, program: &Path) -> String {
             "$env:COMPLETE = \"powershell\"; {program} | Out-String | Invoke-Expression; Remove-Item Env:\\COMPLETE"
         ),
         other => format!("# {other} has no dynamic completion; use the static generator"),
+    };
+    format!("{session}\n{completion}")
+}
+
+/// The line that exports this terminal's session id.
+fn session_export(shell: Shell, program: &str) -> String {
+    let var = crate::session::SESSION;
+    match shell {
+        Shell::Bash | Shell::Zsh => format!("export {var}=\"$({program} session-id)\""),
+        Shell::Fish => format!("set -gx {var} ({program} session-id)"),
+        Shell::Elvish => format!("set E:{var} = ({program} session-id)"),
+        Shell::PowerShell => format!("$env:{var} = (& {program} session-id)"),
+        _ => format!("# export {var} to an id unique to this terminal"),
     }
 }
 
@@ -78,7 +94,10 @@ mod tests {
     fn init_prints_a_line_that_sources_the_binary() {
         let program = PathBuf::from("/opt/keycloak-cli");
         let bash = init(Shell::Bash, &program);
-        assert_eq!(bash, "eval \"$(COMPLETE=bash /opt/keycloak-cli)\"");
+        assert_eq!(
+            bash,
+            "export KEYCLOAK_CLI_SESSION=\"$(/opt/keycloak-cli session-id)\"\neval \"$(COMPLETE=bash /opt/keycloak-cli)\""
+        );
         assert!(init(Shell::Zsh, &program).contains("COMPLETE=zsh /opt/keycloak-cli"));
         assert!(init(Shell::Fish, &program).contains("COMPLETE=fish /opt/keycloak-cli | source"));
         assert!(init(Shell::Elvish, &program).contains("COMPLETE=elvish /opt/keycloak-cli"));

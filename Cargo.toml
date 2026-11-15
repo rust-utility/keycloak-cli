@@ -51,6 +51,8 @@ clap = { version = "4", features = ["cargo", "derive", "env"] }
 # Dynamic completion: the shell asks the binary for candidates (F8, F9).
 clap_complete = { version = "4", features = ["unstable-dynamic"] }
 heck = "0.5"
+# The token supplier trait of the wrapped crate is declared with async_trait.
+async-trait = "0.1"
 # Pinned to the exact crate release the generated sources come from; the version
 # scheme of this package follows it (see doc/ROADMAP.md).
 keycloak = { version = "=26.8.100", default-features = false, features = ["reqwest"] }
