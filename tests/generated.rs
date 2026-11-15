@@ -59,3 +59,56 @@ fn tags_cargo_is_the_verbatim_feature_block_of_the_tags() {
         .collect();
     assert_eq!(declared, features);
 }
+
+/// The `[features]` block between two sections of `Cargo.toml`.
+fn manifest_features() -> String {
+    let manifest = include_str!("../Cargo.toml");
+    let features = manifest
+        .split("[features]")
+        .nth(1)
+        .expect("Cargo.toml has a [features] section");
+    features
+        .split("\n[")
+        .next()
+        .expect("the section ends somewhere")
+        .to_owned()
+}
+
+#[test]
+fn cargo_features_mirror_the_tag_features_of_the_crate() {
+    // M8: a tag the crate ships but this package cannot switch on (or the other
+    // way round) would mean commands that are generated but never buildable.
+    let features = manifest_features();
+    let mut declared = Vec::new();
+    for line in features.lines() {
+        let Some((key, value)) = line.split_once('=') else {
+            continue;
+        };
+        let key = key.trim();
+        if key.starts_with("tag-") && key != "tags-all" {
+            assert_eq!(
+                value.trim(),
+                format!("[\"keycloak/{key}\"]"),
+                "{key} must enable the crate's own feature"
+            );
+            declared.push(key.to_owned());
+        }
+    }
+    let expected: Vec<String> = TAGS.iter().map(|tag| format!("tag-{tag}")).collect();
+    assert_eq!(
+        declared, expected,
+        "tag features follow src/generated/tags.rs"
+    );
+
+    let tags_all = features
+        .lines()
+        .find(|line| line.trim_start().starts_with("tags-all"))
+        .expect("tags-all exists");
+    for feature in &expected {
+        assert!(
+            tags_all.contains(&format!("{feature:?}")),
+            "tags-all does not enable {feature}"
+        );
+    }
+    assert!(features.contains("default = [\"tags-all\"]"), "{features}");
+}

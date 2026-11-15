@@ -228,6 +228,11 @@ fn emit_module(tag: &str, entries: &[&Bound<'_>], version: &str) -> Result<Strin
     source.push_str("}\n\n");
 
     source.push_str("/// Runs the operation behind `words`.\n");
+    source.push_str("///\n");
+    source.push_str("/// A tag without operations that take arguments has no use for them, and\n");
+    source.push_str("/// the description marks some operations deprecated: both are properties\n");
+    source.push_str("/// of the API, not warnings the build should fail on.\n");
+    source.push_str("#[allow(unused_variables, deprecated)]\n");
     source.push_str("pub async fn dispatch<TS: KeycloakTokenSupplier>(\n");
     source.push_str("    admin: &KeycloakAdmin<TS>,\n");
     source.push_str("    realm: &str,\n");
@@ -424,8 +429,8 @@ fn emit_mod(modules: &[Module], version: &str, commands: usize) -> String {
     }
 
     source.push('\n');
-    source.push_str("/// The top level commands of every enabled tag.\n");
-    source.push_str("pub fn commands() -> Vec<clap::Command> {\n");
+    source.push_str("/// Every command of every enabled tag.\n");
+    source.push_str("pub fn specs() -> Vec<&'static crate::command::CommandSpec> {\n");
     source.push_str("    #[allow(unused_mut)]\n");
     source.push_str("    let mut specs: Vec<&crate::command::CommandSpec> = Vec::new();\n");
     for module in modules {
@@ -438,7 +443,13 @@ fn emit_mod(modules: &[Module], version: &str, commands: usize) -> String {
         )
         .expect("writing to a string cannot fail");
     }
-    source.push_str("    crate::command::tree(specs)\n");
+    source.push_str("    specs\n");
+    source.push_str("}\n");
+
+    source.push('\n');
+    source.push_str("/// The top level commands of every enabled tag.\n");
+    source.push_str("pub fn commands() -> Vec<clap::Command> {\n");
+    source.push_str("    crate::command::tree(specs())\n");
     source.push_str("}\n");
 
     source.push('\n');

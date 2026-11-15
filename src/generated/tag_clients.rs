@@ -473,6 +473,11 @@ pub fn owns(words: &[&str]) -> bool {
 }
 
 /// Runs the operation behind `words`.
+///
+/// A tag without operations that take arguments has no use for them, and
+/// the description marks some operations deprecated: both are properties
+/// of the API, not warnings the build should fail on.
+#[allow(unused_variables, deprecated)]
 pub async fn dispatch<TS: KeycloakTokenSupplier>(
     admin: &KeycloakAdmin<TS>,
     realm: &str,

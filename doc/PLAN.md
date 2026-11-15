@@ -50,7 +50,7 @@ sources from a published crate (F28).
 
 - [x] M0: `rust-utility/keycloak-cli` exists with a skeleton CLI, the 26.8.100↔Keycloak 26.8.1 scheme and green CI
 - [ ] M1: every operation of the pinned `keycloak` version (415, including the 31 untagged) appears as a generated command that dispatches to its crate method — no stubs — and `scripts/generate.sh` reproduces the committed sources byte-for-byte
-- [ ] M2: default build ships all tags; `--no-default-features --features tag-users` builds and `--help` lists only user commands
+- [ ] M2: default build ships all tags; `--no-default-features --features tag-users` builds and `--help` lists only user commands — the first two hold (22 tag features, `tags-all` default); `--help` needs the generated tree in the parser (Q4/Q5: `build_cli()` + runtime)
 - [ ] M3: `keycloak-cli init bash|zsh|fish` prints shell code; after evaluating it, TAB completes commands and flags
 - [ ] M4: after `login` in a terminal, TAB there offers live realms/users/groups/clients; a new terminal offers none until it logs in
 - [ ] M5: live completion is bounded: cold TAB ≤ ~1.5 s, warm (within TTL) ≤ ~100 ms, failures yield no candidates and no stdout noise
@@ -64,9 +64,9 @@ sources from a published crate (F28).
 - [x] Q2 (high impact, high effort) — `keycloak-cli-generate` (fed by `api/openapi.json` from the pinned crate) emits clap modules for one tag (`clients`): names from path+verb, path params as positionals, query params as flags, body as `--body <file|->`
   - [x] naming and collision rules plus unit tests for `/admin/realms` vs `/admin/realms/{realm}` (F6, F7) — `src/generate/naming.rs` + `src/generate/spec.rs`, 12 unit tests, and the `names` self-check over all 415 operations (F29)
   - [x] emitted `clients` module compiles in keycloak-cli after adding `keycloak` with `default-features = false, features = ["reqwest"]` and a `tag-clients` feature — `src/generated/tag_clients.rs` (35 commands, each dispatching to its crate method with the types the crate declares; F30), `src/command.rs` runtime, `src/generate/{signature,emit}.rs`; the emitter validates *every* tag on every run, so Q3 is now switching the selection on and generating the feature block
-- [ ] Q3 (high impact, medium effort) — all remaining tags emitted behind `#[cfg(feature = "tag-…")]` with `tag-none`, and CLI features mirroring `tags cargo` (F3, F25)
-  - [ ] emit the remaining tag modules and the `tag-none` bucket, feature block generated from `tags cargo` — the emitter already builds, validates and dispatches all 22 tags (415 operations) in every run; `scripts/generate.sh` writes only `clients` (`tags_to_emit`, override with `KEYCLOAK_CLI_GENERATE_TAGS`)
-  - [x] CI drift job: `scripts/generate.sh` regenerates from the pinned crate and fails on diff (F4, F5) — wired in round 1 for the files the script emits today; `src/generated/tags.rs` is covered now and every module the script learns to emit is covered automatically
+- [x] Q3 (high impact, medium effort) — all remaining tags emitted behind `#[cfg(feature = "tag-…")]` with `tag-none`, and CLI features mirroring `tags cargo` (F3, F25)
+  - [x] emit the remaining tag modules and the `tag-none` bucket, feature block generated from `tags cargo` — 22 modules / 415 commands are emitted and compiled (`src/generated/`, 524 KB), `tag-none` included; the CLI's 22 `tag-*` features plus `tags-all` were written from `tags cargo` once and `tests/generated.rs` now fails if `Cargo.toml` and `src/generated/tags.rs` disagree (the same guarantee as generating the manifest, without a script rewriting a hand-reviewed file), and `--no-default-features --features tag-users` builds
+  - [x] CI drift job: `scripts/generate.sh` regenerates from the pinned crate and fails on diff (F4, F5) — wired in round 1 and now covering every generated module
 - [ ] Q4 (high impact, medium effort) — generated commands call the API: token from the existing flag/env config, shared tokio runtime, per-command dispatch (a session login replaces the token source in Q6) (F14, F24)
   - [ ] runtime plus `KeycloakAdmin` construction from config; one generated command is asserted against a loopback HTTP stub (method, path, query), since the crate builds and sends requests internally with no render hook
   - [ ] dispatch and `KeycloakError` → exit-code mapping, tested with a stub token supplier

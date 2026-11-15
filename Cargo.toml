@@ -16,10 +16,33 @@ repository = "https://github.com/rust-utility/keycloak-cli"
 exclude = ["rust-toolchain.toml"]
 
 [features]
-# Every tag of the keycloak crate this build ships; `tag-*` features enable the
-# operations generated for that tag and the matching feature of the crate.
-default = ["tag-clients"]
+# One feature per tag of the keycloak crate; the list is the one the crate
+# itself prints (`tags cargo`, see src/generated/tags.rs), and every feature
+# enables the matching feature of the crate so its module compiles.
+default = ["tags-all"]
+tags-all = ["tag-attack-detection", "tag-authentication-management", "tag-client-attribute-certificate", "tag-client-initial-access", "tag-client-registration-policy", "tag-client-role-mappings", "tag-client-scopes", "tag-clients", "tag-component", "tag-groups", "tag-identity-providers", "tag-key", "tag-organizations", "tag-protocol-mappers", "tag-realms-admin", "tag-role-mapper", "tag-roles", "tag-roles-by-id", "tag-scope-mappings", "tag-users", "tag-workflows", "tag-none"]
+tag-attack-detection = ["keycloak/tag-attack-detection"]
+tag-authentication-management = ["keycloak/tag-authentication-management"]
+tag-client-attribute-certificate = ["keycloak/tag-client-attribute-certificate"]
+tag-client-initial-access = ["keycloak/tag-client-initial-access"]
+tag-client-registration-policy = ["keycloak/tag-client-registration-policy"]
+tag-client-role-mappings = ["keycloak/tag-client-role-mappings"]
+tag-client-scopes = ["keycloak/tag-client-scopes"]
 tag-clients = ["keycloak/tag-clients"]
+tag-component = ["keycloak/tag-component"]
+tag-groups = ["keycloak/tag-groups"]
+tag-identity-providers = ["keycloak/tag-identity-providers"]
+tag-key = ["keycloak/tag-key"]
+tag-organizations = ["keycloak/tag-organizations"]
+tag-protocol-mappers = ["keycloak/tag-protocol-mappers"]
+tag-realms-admin = ["keycloak/tag-realms-admin"]
+tag-role-mapper = ["keycloak/tag-role-mapper"]
+tag-roles = ["keycloak/tag-roles"]
+tag-roles-by-id = ["keycloak/tag-roles-by-id"]
+tag-scope-mappings = ["keycloak/tag-scope-mappings"]
+tag-users = ["keycloak/tag-users"]
+tag-workflows = ["keycloak/tag-workflows"]
+tag-none = ["keycloak/tag-none"]
 
 [dependencies]
 clap = { version = "4", features = ["cargo", "derive", "env"] }

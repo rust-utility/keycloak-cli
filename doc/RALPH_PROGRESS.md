@@ -209,17 +209,49 @@ selection + features, not more codegen.**
 - `scripts/generate.sh --check` → up to date; two consecutive runs produce
   identical hashes for every file in `src/generated/`.
 
-### Notes for the next round (Q3)
+### Added in the same round: Q3 (every tag)
 
-- `tags_to_emit` in `scripts/generate.sh` is the only switch left: set it to every
-  tag of `tags.rs` (and generate the CLI's `[features]` block from `TAGS_CARGO`),
-  then `--no-default-features --features tag-users` is M2, and 380 more commands
-  appear with no new emitter code.
-- The CLI still parses with `#[derive(Command)]`; wiring `generated::commands()`
-  into the parser (plus `generated::dispatch` behind the runtime/token of Q4) is
-  what makes the tree visible in `--help`.
-- 11 deprecated operations live in other tags; their "deprecated" rendering is
-  covered only by the `command.rs` fixture until those tags are emitted.
+The emitter was tag-agnostic, so Q3 became selection and features rather than new
+codegen:
+
+- `scripts/generate.sh` emits **all 22 tags by default** now
+  (`KEYCLOAK_CLI_GENERATE_TAGS=clients,users` narrows it; `tags_to_emit` in the
+  script); `src/generated/` holds `mod.rs` + 22 `tag_*.rs` + `tags.rs` (524 KB,
+  415 commands) and the whole crate compiles with **zero warnings**.
+- `Cargo.toml` has the 22 `tag-*` features (`tag-x = ["keycloak/tag-x"]`),
+  `tags-all` enabling all of them, and `default = ["tags-all"]`.
+- Generated tag modules allow `unused_variables`/`deprecated`: a tag without
+  arguments and the 11 deprecated operations are properties of the API, not
+  warnings a build should fail on.
+- `tests/commands.rs` gained a `tags-all` module: 415 specs, 36 groups, every
+  command reachable, the 31 untagged operations present (`tag_none`), and the
+  shared-word pairs spelled apart (`localization get` vs `localization locale
+  get` vs `localization locale key get`).
+- `tests/generated.rs` gained a manifest parity test: the `tag-*` features of
+  `Cargo.toml` must equal `TAGS`, each must enable `keycloak/tag-*`, `tags-all`
+  must list them all and be the default (M8: a tag mismatch fails CI).
+
+Verified: `cargo build` (all tags, 0 warnings), `cargo build
+--no-default-features`, `cargo build --no-default-features --features tag-users`,
+`cargo test --all` (**48 tests**: 35 unit + 9 commands + 4 generated), `cargo
+clippy --all-targets -D warnings` (also `--no-default-features --features
+tag-users`), `cargo fmt --check`, `scripts/generate.sh --check`, and a deliberate
+type error in a generated module proved the modules are really compiled.
+
+### Notes for the next round (Q4)
+
+- The tree is generated but not yet parsed by `main`: `src/cli.rs` still uses a
+  derive `Command` enum with `info` only. Q4 needs `build_cli()` (clap builder =
+  connection args from `connection_args()` + `generated::commands()`),
+  `Cli::from_arg_matches`-style extraction, a current-thread tokio runtime and a
+  `KeycloakAdmin` from the existing flags (`KeycloakAdminToken::acquire`), then
+  `generated::dispatch(admin, realm, words, args)` and `Error` → exit codes.
+- That change is also what makes M2's `--help` line and M1's "dispatches to its
+  crate method" verifiable end to end; a loopback HTTP stub (stdlib
+  `TcpListener`) can assert method/path/query without a Keycloak server.
+- `--body` reading, argument readers and error types are already in place, so Q4
+  is mostly plumbing. Generated `DefaultResponse` operations currently return
+  `Value::Null`; the output layer (Q8) can decide what to print for them.
 
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…

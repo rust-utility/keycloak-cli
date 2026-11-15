@@ -21,7 +21,7 @@ crate_url_template=https://crates.io/api/v1/crates/keycloak/{version}/download
 
 # Tags whose modules are written. Q3 widens this to every tag of the crate; the
 # generator already emits and validates all of them on every run.
-tags_to_emit=${KEYCLOAK_CLI_GENERATE_TAGS:-clients}
+tags_to_emit=${KEYCLOAK_CLI_GENERATE_TAGS:-all}
 
 check=false
 refresh=false
@@ -244,6 +244,10 @@ mkdir -p "$stage"
 # validates every tag on the way; `$tags_to_emit` only decides which modules are
 # written (the feature set of a build decides which ones are compiled).
 note "emitting commands for tags: ${tags_to_emit:-all}"
+emit_tags_args=()
+if [ -n "${tags_to_emit:-}" ] && [ "${tags_to_emit}" != "all" ]; then
+    emit_tags_args=(--tags "$tags_to_emit")
+fi
 (
     cd "$repo_root" &&
         cargo run --locked --quiet --bin keycloak-cli-generate -- \
@@ -251,7 +255,7 @@ note "emitting commands for tags: ${tags_to_emit:-all}"
             --crate-dir "$src_dir" \
             --version "$version" \
             --out "$stage" \
-            --tags "$tags_to_emit"
+            ${emit_tags_args[@]+"${emit_tags_args[@]}"}
 ) || die "cannot emit the command modules of keycloak $version"
 
 # Formatting is part of generation: CI runs `cargo fmt --check`, and the rustfmt

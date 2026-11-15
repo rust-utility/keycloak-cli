@@ -62,6 +62,11 @@ scripts/generate.sh --check  # fail if the committed sources are stale
 KEYCLOAK_CLI_GENERATE_TAGS=clients,users scripts/generate.sh  # pick the tags
 ```
 
+One module is emitted per tag of the API, behind the matching `tag-*` feature.
+The default build ships every tag (`tags-all`); `--no-default-features --features
+tag-users` builds a CLI with only the user operations, and `Cargo.toml`'s feature
+list is checked against the crate's own `tags cargo` output by a test.
+
 The output carries no timestamps and is formatted with the toolchain pinned in
 `rust-toolchain.toml`, so `--check` is a byte-for-byte comparison and works as a
 CI drift guard. Downloads and builds are cached in
