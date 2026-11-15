@@ -45,6 +45,27 @@ release for Keycloak `26.7.3`. The mapping is derived from `CARGO_PKG_VERSION`
 (see `src/version.rs`), so a version bump is enough to follow a new Keycloak
 release.
 
+## Generated sources
+
+The command tree is generated, not hand-written. Both the OpenAPI description and
+the generator live in the [`keycloak`](https://crates.io/crates/keycloak) crate,
+so `scripts/generate.sh` downloads the `.crate` tarball of the exact version this
+package wraps (its own package version), unpacks it and runs the crate's own
+generator inside it:
+
+```sh
+scripts/generate.sh          # regenerate src/generated/
+scripts/generate.sh --check  # fail if the committed sources are stale
+```
+
+The output carries no timestamps and is formatted with the toolchain pinned in
+`rust-toolchain.toml`, so `--check` is a byte-for-byte comparison and works as a
+CI drift guard. Downloads and builds are cached in
+`${XDG_CACHE_HOME:-~/.cache}/keycloak-cli/generate` (`--refresh` discards the
+cache, `--crate FILE` uses a local tarball). The version inside the tarball is
+asserted against the package version, so a version bump without a matching
+release fails instead of silently generating a different API.
+
 ## Roadmap
 
 Planned commands, milestones and non-goals live in
