@@ -484,6 +484,25 @@ and markdown/html plus `--fields`. **Done: M6 is met; all five formats work.**
   `doc/COMPLETION.md` (session semantics + security) does not exist yet.
 
 
+### Added in the same round: Q10 (docs) and M8 (the gates)
+
+- `doc/COMPLETION.md` — registration per shell (and why bash uses `eval "$(…)"`),
+  re-sourcing after an upgrade, sessions (id derivation, state file and modes,
+  expiry, other terminals), live values and their endpoints, the budget with the
+  measured numbers, security notes and a troubleshooting table. README links it.
+- `doc/ROADMAP.md` — the "M0 skeleton, no API calls yet" claim was stale: it now
+  describes the generated tree, ticks what ships (password grant + admin token,
+  session with expiry, login/logout, documented exit codes, every read operation,
+  output layer, create/update/delete with `--body`, completions) and keeps the
+  genuinely open items (client credentials, contexts, `--token`, `doctor`, `--all`
+  pagination, `--quiet/--verbose`, `--dry-run`/`--yes`, man page, releases).
+- M8 was proven rather than assumed, by breaking each gate on purpose:
+  `// drift` in `src/generated/tags.rs` → `scripts/generate.sh --check` exits 1;
+  `tag-groups = ["keycloak/tag-users"]` in `Cargo.toml` → `tests/generated.rs`
+  fails; removing the subcommand wiring from `command::tree` →
+  `tests/completion.rs` fails 2 tests. Everything was restored and re-verified.
+
+
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
 - round 2 · Q2 · 32 turns · continue → continue · naming and collision rules for the generated tree, with u…

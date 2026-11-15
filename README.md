@@ -122,7 +122,9 @@ that has not logged in offers none of them. Every TAB is bounded: values come fr
 the same endpoints the commands use, they are cached for 60 s on disk
 (`$XDG_STATE_HOME/keycloak-cli/completion`) so the next TAB makes no request, the
 lookup has a 1.2 s timeout, at most 100 candidates are printed, and any failure is
-silent. `KEYCLOAK_CLI_NO_LIVE_COMPLETION=1` turns live completion off.
+silent. `KEYCLOAK_CLI_NO_LIVE_COMPLETION=1` turns live completion off. How sessions,
+registration and the cache work, and what to do when TAB offers nothing, is in
+[`doc/COMPLETION.md`](doc/COMPLETION.md).
 
 ## Exit codes
 
@@ -177,8 +179,9 @@ release fails instead of silently generating a different API.
 
 ## Roadmap
 
-Planned commands, milestones and non-goals live in
-[`doc/ROADMAP.md`](doc/ROADMAP.md). Publishing setup is documented in
+What is done and what is planned lives in [`doc/ROADMAP.md`](doc/ROADMAP.md);
+completion and sessions are described in
+[`doc/COMPLETION.md`](doc/COMPLETION.md); publishing setup is documented in
 [`doc/PUBLISHING.md`](doc/PUBLISHING.md).
 
 ## License

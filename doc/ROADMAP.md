@@ -5,8 +5,16 @@ command line tool, built on the [`keycloak`](https://crates.io/crates/keycloak)
 crate. This file is the source of truth for planned scope; milestones are
 deliberately outcome-based and can be reordered.
 
-Current state: **M0 skeleton** — CLI shape, configuration, version scheme, CI. No
-API calls yet.
+Current state: **generated command tree** — every operation of the pinned
+`keycloak` crate is a command (415 in 36 groups, 22 `tag-*` features), each one
+calling its crate method; terminals log in once (`login`/`logout`), completion is
+dynamic and offers the session's realms/users/groups/clients, and responses render
+as JSON, YAML, a table, markdown or HTML. Still ahead: the `report` document, write
+path safety (`--dry-run`/`--yes`), contexts and release artefacts.
+
+The items below are the product view; the code is generated from the API description
+(see `src/generate/` and `scripts/generate.sh`), so "coverage" means the wrapped
+crate exposes it.
 
 ## Principles
 
@@ -22,32 +30,32 @@ API calls yet.
 
 ## M1 — Authentication and contexts
 
-- [ ] Token acquisition through the `keycloak` crate: password grant and client
-      credentials (`--client-id/--client-secret`), admin token
+- [x] Token acquisition through the `keycloak` crate: password grant and admin token
+- [ ] Client credentials (`--client-id/--client-secret`) as an alternative login
 - [ ] Contexts (profiles) in `$XDG_CONFIG_HOME/keycloak-cli/config.toml` with
       `--context <name>`, so `kc prod users list` does not need five env vars
-- [ ] Token cache with expiry handling, `--token` for a pre-issued token
-- [ ] `keycloak-cli login` / `logout` (store or clear credentials per context)
+- [x] Token cache with expiry: the terminal's session (`login`) is stored with the
+      token's expiry and reused until it lapses
+- [ ] `--token` for a pre-issued token
+- [x] `keycloak-cli login` / `logout` — one session per terminal, not per context
 - [ ] Connection diagnostics: `doctor` (reachability, version, granted roles)
-- [ ] Documented exit codes (`0` ok, `1` error, `2` usage, …)
+- [x] Documented exit codes (`0` ok, `1` error, `2` usage, `3` rejected
+      credentials, `4` not found)
 
 ## M2 — Read paths
 
-- [ ] `realms list|get`, `realms keys`
-- [ ] `users list|get|search` with `--first/--max/--all` pagination and
-      `--brief`, plus `users sessions|consents|credentials`
-- [ ] `groups list|tree|get`, `groups members`
-- [ ] `clients list|get`, `clients scopes|protocol-mappers`
-- [ ] `roles list|get`, `roles composites|members`
-- [ ] `sessions list`, `events list` (`--type`, `--date-from`, `--date-to`)
-- [ ] Output layer: `--output json|yaml|table|tsv`, `--fields` projection,
-      `--jq`-friendly (JSON is the default when stdout is not a TTY)
+- [x] Every read operation of the Admin API, as generated commands named after the
+      path and verb (`realms list`, `users list|get`, `groups list|get`,
+      `clients list|get`, `roles list|get`, `events list`, `sessions`…)
+- [ ] `--all` pagination (the generated `--first`/`--max` are per request)
+- [x] Output layer: `--output json|yaml|table|markdown|html` with `auto` (table on a
+      terminal, JSON when piped) and `--fields` projection
 - [ ] A global `--quiet` and `--verbose` (log to stderr, data on stdout)
 
 ## M3 — Write paths
 
-- [ ] `create|update|delete` for realms, users, groups, clients, roles
-- [ ] `--from-file -` (stdin) and `-` conventions for JSON payloads
+- [x] `create|update|delete` for every resource the API exposes, as generated
+      commands, with `--body <FILE|->` for the payload
 - [ ] `--dry-run` everywhere a mutation happens, plus `--yes` for destructive ones
 - [ ] User management shortcuts: `users reset-password`,
       `users add-role|remove-role`, `users join-group|leave-group`,
@@ -72,7 +80,8 @@ API calls yet.
 
 ## M6 — Ergonomics and distribution
 
-- [ ] Shell completions (bash, zsh, fish), man page
+- [x] Shell completions (bash, zsh, fish, elvish, powershell), dynamic and aware of
+      the session's values — see `doc/COMPLETION.md`; a man page is still missing
 - [ ] Coloured tables with `--color auto|always|never`, no colour when piped
 - [ ] `keycloak-cli help topics` for common recipes (CI service account, migrate
       realm between servers, find users without MFA)
@@ -92,9 +101,9 @@ API calls yet.
 
 - Binary name: keep `keycloak-cli`, or ship a short alias (`kc` is taken by other
   tools and by `kcadm` habits, so probably not)?
-- Feature gating of the wrapped crate: default features
-  (`tags-all`, `resource-builder`, `reqwest`) for installs, or a smaller tag set
-  to keep build times low and grow by request?
+- Feature gating of the wrapped crate: answered for now — `tags-all` is the default
+  and `--no-default-features --features tag-users` builds a smaller CLI; whether to
+  ship such slim builds is a release question.
 - Contexts file format and whether secrets may live in it at all (keyring
   integration?), or stay environment/token-file only.
 - Whether `--dry-run` should print the curl equivalent, the JSON payload, or both.

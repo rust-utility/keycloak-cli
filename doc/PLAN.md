@@ -58,7 +58,7 @@ sources from a published crate (F28).
 - [x] M5: live completion is bounded: cold TAB ≤ ~1.5 s, warm (within TTL) ≤ ~100 ms, failures yield no candidates and no stdout noise — measured against a local stub (debug build): cold 42 ms, warm 38 ms with zero requests, a 3 s API answer cut off at 1262 ms with no candidates and empty stderr; enforced by the 1.2 s registry timeout, the 60 s disk cache and `tests/live_completion.rs`
 - [x] M6: listing commands render json (piped default), yaml, table, markdown and html via `--output`, with `auto` choosing table on a TTY — `src/report.rs` (five renderers, `auto` resolved against `std::io::IsTerminal`, `--fields` projection, null responses print nothing) and `tests/report.rs` (piped `auto` is JSON, table borders and columns, YAML, markdown, HTML, `--fields`, an unknown format is a usage error)
 - [ ] M7: `keycloak-cli report` writes a markdown and a self-contained html report with ASCII charts for users, events and sessions
-- [ ] M8: introducing generation drift, a tag-feature mismatch with the `keycloak` crate, or a completion regression makes CI fail
+- [x] M8: introducing generation drift, a tag-feature mismatch with the `keycloak` crate, or a completion regression makes CI fail — all three legs demonstrated by breaking the tree on purpose and watching the gate fail: `// drift` in `src/generated/tags.rs` → `scripts/generate.sh --check` exits 1 (CI step), a wrong `tag-groups = ["keycloak/tag-users"]` → `tests/generated.rs` fails, and dropping the subcommand wiring in `command::tree` → `tests/completion.rs` fails (2 tests); all run in `cargo test --all`/the drift step
 
 ## Round plan
 
@@ -81,7 +81,7 @@ sources from a published crate (F28).
   - [x] `Report` plus json/yaml/table renderers (comfy-table) with `--output auto` TTY detection — `Format::{Json,Yaml,Table}` over `serde_yaml_ng` and `comfy-table` 8 (`custom_styling` for the UTF-8 preset), `auto` = table on a TTY, JSON when piped
   - [x] markdown (pulldown-cmark/termimad) and html (minijinja) renderers plus `--fields` — markdown and HTML are generated directly (escaping included) and `--fields` projects every format, not only the tables
 - [ ] Q9 (medium impact, medium effort) — ASCII visualisations (Unicode bars, `sparklines`/`textplots` series) and a `report` command composing users/events/session stats (F21, F26)
-- [ ] Q10 (low impact, low effort) — docs and scope alignment: README usage, ROADMAP update, `doc/COMPLETION.md` covering session semantics and security, tag parity test (F3, F24)
+- [x] Q10 (low impact, low effort) — docs and scope alignment: README usage, ROADMAP update, `doc/COMPLETION.md` covering session semantics and security, tag parity test (F3, F24) — README has usage/sessions/completion/output/exit codes, `doc/ROADMAP.md` no longer claims "no API calls yet" and ticks what the generated tree delivers, `doc/COMPLETION.md` documents registration, sessions, live values, the budget, security and troubleshooting, and `tests/generated.rs` keeps `Cargo.toml`'s tag features equal to the crate's `tags cargo` output
 
 ## Checks
 
