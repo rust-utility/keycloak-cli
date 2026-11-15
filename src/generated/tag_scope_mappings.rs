@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "clients", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/clients/{client}/available",
+        query: &[
+        ],
         about: "The available client-level roles Returns the roles for the client that can be associated with the client's scope",
         long_about: "",
         positionals: &[
@@ -30,6 +34,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "clients", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/clients/{client}/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective client roles Returns the roles for the client that are associated with the client's scope.",
         long_about: "",
         positionals: &[
@@ -44,6 +53,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "clients", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Add client-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -57,6 +70,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "clients", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Remove client-level roles from the client's scope.",
         long_about: "",
         positionals: &[
@@ -70,6 +87,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Get the roles associated with a client's scope Returns roles for the client.",
         long_about: "",
         positionals: &[
@@ -83,6 +104,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings",
+        query: &[
+        ],
         about: "Get all scope mappings for the client",
         long_about: "",
         positionals: &[
@@ -95,6 +120,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that are available to attach to this client's scope",
         long_about: "",
         positionals: &[
@@ -107,6 +136,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level roles associated with the client’s scope What this does is recurse any composite roles associated with the client’s scope and adds the roles to this lists.",
         long_about: "The method is really to show a comprehensive total view of realm-level roles associated with the client.",
         positionals: &[
@@ -120,6 +154,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Add a set of realm-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -132,6 +170,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Remove a set of realm-level roles from the client's scope",
         long_about: "",
         positionals: &[
@@ -144,6 +186,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "scope-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level roles associated with the client's scope",
         long_about: "",
         positionals: &[
@@ -156,6 +202,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "clients", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/clients/{client}/available",
+        query: &[
+        ],
         about: "The available client-level roles Returns the roles for the client that can be associated with the client's scope",
         long_about: "",
         positionals: &[
@@ -169,6 +219,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "clients", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/clients/{client}/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective client roles Returns the roles for the client that are associated with the client's scope.",
         long_about: "",
         positionals: &[
@@ -183,6 +238,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "clients", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Add client-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -196,6 +255,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "clients", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Remove client-level roles from the client's scope.",
         long_about: "",
         positionals: &[
@@ -209,6 +272,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Get the roles associated with a client's scope Returns roles for the client.",
         long_about: "",
         positionals: &[
@@ -222,6 +289,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings",
+        query: &[
+        ],
         about: "Get all scope mappings for the client",
         long_about: "",
         positionals: &[
@@ -234,6 +305,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that are available to attach to this client's scope",
         long_about: "",
         positionals: &[
@@ -246,6 +321,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level roles associated with the client’s scope What this does is recurse any composite roles associated with the client’s scope and adds the roles to this lists.",
         long_about: "The method is really to show a comprehensive total view of realm-level roles associated with the client.",
         positionals: &[
@@ -259,6 +339,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Add a set of realm-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -271,6 +355,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Remove a set of realm-level roles from the client's scope",
         long_about: "",
         positionals: &[
@@ -283,6 +371,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "scope-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level roles associated with the client's scope",
         long_about: "",
         positionals: &[
@@ -295,6 +387,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "clients", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/clients/{client}/available",
+        query: &[
+        ],
         about: "The available client-level roles Returns the roles for the client that can be associated with the client's scope",
         long_about: "",
         positionals: &[
@@ -308,6 +404,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "clients", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/clients/{client}/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective client roles Returns the roles for the client that are associated with the client's scope.",
         long_about: "",
         positionals: &[
@@ -322,6 +423,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "clients", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Add client-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -335,6 +440,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "clients", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Remove client-level roles from the client's scope.",
         long_about: "",
         positionals: &[
@@ -348,6 +457,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/clients/{client}",
+        query: &[
+        ],
         about: "Get the roles associated with a client's scope Returns roles for the client.",
         long_about: "",
         positionals: &[
@@ -361,6 +474,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings",
+        query: &[
+        ],
         about: "Get all scope mappings for the client",
         long_about: "",
         positionals: &[
@@ -373,6 +490,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that are available to attach to this client's scope",
         long_about: "",
         positionals: &[
@@ -385,6 +506,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level roles associated with the client’s scope What this does is recurse any composite roles associated with the client’s scope and adds the roles to this lists.",
         long_about: "The method is really to show a comprehensive total view of realm-level roles associated with the client.",
         positionals: &[
@@ -398,6 +524,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Add a set of realm-level roles to the client's scope",
         long_about: "",
         positionals: &[
@@ -410,6 +540,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Remove a set of realm-level roles from the client's scope",
         long_about: "",
         positionals: &[
@@ -422,6 +556,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "scope-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/scope-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level roles associated with the client's scope",
         long_about: "",
         positionals: &[

@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["groups", "children", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/groups/{group_id}/children",
+        query: &[
+        ],
         about: "Set or create child.",
         long_about: "This will just set the parent if it exists. Create it and set the parent if the group doesn’t exist.",
         positionals: &[
@@ -29,6 +33,16 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "children", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/children",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Return a paginated list of subgroups that have a parent group corresponding to the group on the URL",
         long_about: "",
         positionals: &[
@@ -47,6 +61,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/count",
+        query: &[
+            ("search", "search"),
+            ("top", "top"),
+        ],
         about: "Returns the groups counts.",
         long_about: "",
         positionals: &[
@@ -60,6 +80,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/groups",
+        query: &[
+        ],
         about: "create or add a top level realm groupSet or create child.",
         long_about: "This will update the group and set the parent if it exists. Create it and set the parent if the group doesn’t exist.",
         positionals: &[
@@ -71,6 +95,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -83,6 +111,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -95,6 +127,18 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("populate_hierarchy", "populateHierarchy"),
+            ("q", "q"),
+            ("search", "search"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Get group hierarchy.  Only `name` and `id` are returned.  `subGroups` are only returned when using the `search` or `q` parameter. If none of these parameters is provided, the top-level groups are returned without `subGroups` being filled.",
         long_about: "",
         positionals: &[
@@ -114,6 +158,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -126,6 +174,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/groups/{group_id}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -138,6 +190,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "members", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/members",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Get users Returns a stream of users, filtered according to query parameters",
         long_about: "",
         positionals: &[
@@ -153,6 +212,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/groups/{group_id}",
+        query: &[
+        ],
         about: "Update group, ignores subgroups.",
         long_about: "",
         positionals: &[

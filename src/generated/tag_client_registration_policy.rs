@@ -16,6 +16,9 @@ use crate::error::Error;
 /// The commands of this tag.
 pub const COMMANDS: &[CommandSpec] = &[CommandSpec {
     words: &["client-registration-policy", "providers", "list"],
+    method: "GET",
+    path: "/admin/realms/{realm}/client-registration-policy/providers",
+    query: &[],
     about: "Base path for retrieve providers with the configProperties properly filled",
     long_about: "",
     positionals: &[],

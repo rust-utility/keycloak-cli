@@ -22,9 +22,9 @@ crate exposes it.
   prompts unless a command is destructive, so the tool composes in shell and CI.
 - **Thin over the crate.** REST coverage comes from the generated `keycloak` crate;
   the CLI adds ergonomics, never its own HTTP layer or a second resource model.
-- **Safe by default.** Destructive commands need `--yes`/`--force`; `--dry-run`
-  prints the request that would be sent; no secret is ever echoed
-  (`password`, `secret`, tokens are redacted everywhere).
+- **Safe by default.** Destructive commands (`… delete`) refuse to run without
+  `--yes`; `--dry-run` prints the request that would be sent and sends nothing; no
+  secret is ever echoed (`password`, `secret`, tokens are redacted everywhere).
 - **Lockstep versions.** `x.y.(z * 100 + v)` mirrors the wrapped Keycloak `x.y.z`
   and the `keycloak` crate release it is built against.
 
@@ -50,22 +50,22 @@ crate exposes it.
 - [ ] `--all` pagination (the generated `--first`/`--max` are per request)
 - [x] Output layer: `--output json|yaml|table|markdown|html` with `auto` (table on a
       terminal, JSON when piped) and `--fields` projection
-- [ ] A global `--quiet` and `--verbose` (log to stderr, data on stdout)
+- [x] A global `--quiet` and `--verbose` (log to stderr, data on stdout) — `--verbose` prints the request line before sending it, `--quiet` drops informational notes; data always goes to stdout
 
 ## M3 — Write paths
 
 - [x] `create|update|delete` for every resource the API exposes, as generated
       commands, with `--body <FILE|->` for the payload
-- [ ] `--dry-run` everywhere a mutation happens, plus `--yes` for destructive ones
-- [ ] User management shortcuts: `users reset-password`,
+- [x] `--dry-run` everywhere a mutation happens, plus `--yes` for destructive ones — `--dry-run` prints method, URL (with query, positionals and encoded values) and body from the generated description, and every `DELETE` command requires `--yes` (dry runs excepted)
+- [x] User management shortcuts — available today as generated commands: `users reset-password update <user-id>`, `users credentials …`, `users groups …`, `users logout`, `users delete --yes`; curated aliases (shorter names, `--all` pagination) are still open. The original list: `users reset-password`,
       `users add-role|remove-role`, `users join-group|leave-group`,
       `users logout`, `users delete --disable-first`
-- [ ] Client management: `clients secret rotate`, certificates, `clients enable`
-- [ ] Realm role mappings and scope mappings as first-class commands
+- [x] Client management — generated as `clients client-secret create|rotated`, `clients certificates …`, `clients update` (enable/disable is the `enabled` field); curated aliases remain open
+- [x] Realm role mappings and scope mappings — the generated tree has `… role-mappings …` and `… scope-mappings …` groups for users, groups and clients
 
 ## M4 — Realm configuration and import/export
 
-- [ ] `export` (`--users`, `--groups`, `--clients`), `partial-export`
+- [x] `partial-export` and `partial-import` — generated commands (`partial-export create`, `partial-import create --body …`); curated `export`/`import` aliases with per-resource flags are still open
 - [ ] `import` (multipart) and `partial-import` with `--strategy`
 - [ ] `diff <file> --against <realm>`: show what an import would change
 - [ ] Protect against footguns: refuse to import a realm file over an existing
@@ -89,8 +89,8 @@ crate exposes it.
       realm between servers, find users without MFA)
 - [ ] GitHub release artefacts (linux/macos, static where possible) next to
       `cargo install` and (maybe) Homebrew
-- [ ] crates.io trusted publishing (workflow in place and gated, see
-      `doc/PUBLISHING.md`)
+- [x] crates.io trusted publishing — `keycloak-cli` 26.8.100 is published from the
+      `publish` workflow with OIDC (see `doc/PUBLISHING.md`)
 
 ## Non-goals
 

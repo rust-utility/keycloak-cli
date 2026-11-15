@@ -17,8 +17,8 @@ use crate::version;
 pub struct Cli {
     /// Connection settings, shared by every command.
     pub connection: ConnectionArgs,
-    /// How responses are printed.
-    pub output: OutputArgs,
+    /// How commands run and responses are printed.
+    pub global: GlobalArgs,
     /// The command that was asked for, when one was.
     pub command: Option<Invocation>,
 }
@@ -54,11 +54,11 @@ impl Cli {
     /// Reads a parsed tree.
     pub fn from_matches(matches: &ArgMatches) -> Result<Self, clap::Error> {
         let connection = ConnectionArgs::from_arg_matches(matches)?;
-        let output = OutputArgs::from_arg_matches(matches)?;
+        let global = GlobalArgs::from_arg_matches(matches)?;
         let (words, args) = innermost(matches);
         Ok(Self {
             connection,
-            output,
+            global,
             command: (!words.is_empty()).then_some(Invocation { words, args }),
         })
     }
@@ -135,7 +135,7 @@ pub fn build_cli() -> Command {
                 ),
         );
     let command = ConnectionArgs::augment_args(command);
-    let command = OutputArgs::augment_args(command);
+    let command = GlobalArgs::augment_args(command);
     // `--realm` completes realm names from this terminal's session.
     let command = command.mut_arg("realm", |arg| crate::command::complete(arg, "realm"));
     crate::generated::commands()
@@ -194,9 +194,9 @@ pub struct ConnectionArgs {
     pub password: Option<String>,
 }
 
-/// How a response is printed.
+/// How a command runs and how its response is printed.
 #[derive(Debug, Args)]
-pub struct OutputArgs {
+pub struct GlobalArgs {
     /// How to print the response: `auto` is a table on a terminal and JSON when
     /// the output is piped.
     #[arg(
@@ -211,6 +211,18 @@ pub struct OutputArgs {
     /// Print only these fields, comma separated: `--fields id,clientId`.
     #[arg(long, value_name = "FIELDS", value_delimiter = ',', global = true)]
     pub fields: Vec<String>,
+
+    /// Print the request that would be sent and change nothing.
+    #[arg(long, global = true)]
+    pub dry_run: bool,
+
+    /// Print the request before sending it (on stderr).
+    #[arg(long, global = true)]
+    pub verbose: bool,
+
+    /// Do not print informational messages (errors still go to stderr).
+    #[arg(long, global = true)]
+    pub quiet: bool,
 }
 
 /// Follows the subcommands down to the innermost one.

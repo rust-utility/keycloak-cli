@@ -17,6 +17,11 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["workflows", "activate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/workflows/{id}/activate/{type_}/{resource_id}",
+        query: &[
+            ("not_before", "notBefore"),
+        ],
         about: "Activate workflow for resource",
         long_about: "Activate the workflow for the given resource type and identifier. Optionally schedule the first step using the notBefore parameter.",
         positionals: &[
@@ -32,6 +37,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/workflows",
+        query: &[
+        ],
         about: "Create workflow",
         long_about: "Create a new workflow from the provided representation.",
         positionals: &[
@@ -43,6 +52,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "deactivate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/workflows/{id}/deactivate/{type_}/{resource_id}",
+        query: &[
+        ],
         about: "Deactivate workflow for resource",
         long_about: "Deactivate the workflow for the given resource type and identifier.",
         positionals: &[
@@ -57,6 +70,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/workflows/{id}",
+        query: &[
+        ],
         about: "Delete workflow",
         long_about: "Delete the workflow and its configuration.",
         positionals: &[
@@ -69,6 +86,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/workflows/{id}",
+        query: &[
+            ("include_id", "includeId"),
+        ],
         about: "Get workflow",
         long_about: "Get the workflow representation. Optionally exclude the workflow id from the response.",
         positionals: &[
@@ -82,6 +104,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/workflows",
+        query: &[
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "List workflows",
         long_about: "List workflows filtered by name and paginated using first and max parameters.",
         positionals: &[
@@ -97,6 +127,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "migrate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/workflows/migrate",
+        query: &[
+            ("from", "from"),
+            ("to", "to"),
+        ],
         about: "Migrate scheduled resources from one step to another",
         long_about: "Migrate scheduled resources from one step to another step in the same or in a different workflow.",
         positionals: &[
@@ -110,6 +146,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "scheduled", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/workflows/scheduled/{resource_id}",
+        query: &[
+        ],
         about: "List scheduled workflows for resource",
         long_about: "Return workflows that have scheduled steps for the given resource identifier.",
         positionals: &[
@@ -122,6 +162,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["workflows", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/workflows/{id}",
+        query: &[
+        ],
         about: "Update workflow",
         long_about: "Update the workflow configuration. This method does not update the workflow steps.",
         positionals: &[

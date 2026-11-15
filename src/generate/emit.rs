@@ -267,6 +267,25 @@ fn emit_spec(entry: &Bound<'_>) -> Result<String, EmitError> {
         .collect();
     writeln!(out, "        words: &[{}],", words.join(", "))
         .expect("writing to a string cannot fail");
+    writeln!(
+        out,
+        "        method: {:?},",
+        entry.command.method().as_str().to_ascii_uppercase()
+    )
+    .expect("writing to a string cannot fail");
+    writeln!(out, "        path: {:?},", path_template(entry))
+        .expect("writing to a string cannot fail");
+    out.push_str("        query: &[\n");
+    for parameter in entry.operation.query_parameters() {
+        writeln!(
+            out,
+            "            ({:?}, {:?}),",
+            rust_name(&parameter.name),
+            parameter.name
+        )
+        .expect("writing to a string cannot fail");
+    }
+    out.push_str("        ],\n");
     writeln!(out, "        about: {:?},", about(entry)).expect("writing to a string cannot fail");
     writeln!(out, "        long_about: {:?},", long_about(entry))
         .expect("writing to a string cannot fail");
@@ -447,6 +466,14 @@ fn emit_mod(modules: &[Module], version: &str, commands: usize) -> String {
     source.push_str("}\n");
 
     source.push('\n');
+    source.push_str("/// The command named by `words`, when this build ships it.\n");
+    source.push_str(
+        "pub fn spec(words: &[&str]) -> Option<&'static crate::command::CommandSpec> {\n",
+    );
+    source.push_str("    specs().into_iter().find(|spec| spec.words == words)\n");
+    source.push_str("}\n");
+
+    source.push('\n');
     source.push_str("/// The top level commands of every enabled tag.\n");
     source.push_str("pub fn commands() -> Vec<clap::Command> {\n");
     source.push_str("    crate::command::tree(specs())\n");
@@ -532,6 +559,19 @@ fn check_parameters(entry: &Bound<'_>) -> Result<(), EmitError> {
         }
     }
     Ok(())
+}
+
+/// The path with the crate's parameter names, e.g.
+/// `/admin/realms/{realm}/clients/{client_uuid}`.
+fn path_template(entry: &Bound<'_>) -> String {
+    let mut path = entry.operation.path.to_owned();
+    for parameter in entry.operation.path_parameters() {
+        path = path.replace(
+            &format!("{{{}}}", parameter.name),
+            &format!("{{{}}}", rust_name(&parameter.name)),
+        );
+    }
+    path
 }
 
 /// The crate parameter called `name`.

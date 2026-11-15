@@ -17,6 +17,14 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["organizations", "count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/count",
+        query: &[
+            ("exact", "exact"),
+            ("identity_provider", "identityProvider"),
+            ("q", "q"),
+            ("search", "search"),
+        ],
         about: "Returns the organizations counts.",
         long_about: "",
         positionals: &[
@@ -32,6 +40,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations",
+        query: &[
+        ],
         about: "Creates a new organization",
         long_about: "",
         positionals: &[
@@ -43,6 +55,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}",
+        query: &[
+        ],
         about: "Deletes the organization",
         long_about: "",
         positionals: &[
@@ -55,6 +71,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}",
+        query: &[
+        ],
         about: "Returns the organization representation",
         long_about: "",
         positionals: &[
@@ -67,6 +87,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "children", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/children",
+        query: &[
+        ],
         about: "Create or move a subgroup",
         long_about: "Creates a new subgroup under this organization group. If the group representation includes an ID, moves the existing group to be a child of this group. If no ID is provided, creates a new subgroup.",
         positionals: &[
@@ -80,6 +104,15 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "children", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/children",
+        query: &[
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Get subgroups of this organization group",
         long_about: "Returns a paginated stream of subgroups that belong to this organization group",
         positionals: &[
@@ -98,6 +131,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups",
+        query: &[
+        ],
         about: "Creates a new top-level group or moves an existing group to top-level",
         long_about: "Creates a new top-level group in the organization. If the group representation includes an ID, moves the existing organization group to be a top-level group. If no ID is provided, creates a new top-level group.",
         positionals: &[
@@ -110,6 +147,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}",
+        query: &[
+        ],
         about: "Delete the organization group",
         long_about: "Deletes the organization group and all its subgroups",
         positionals: &[
@@ -123,6 +164,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}",
+        query: &[
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Get organization group representation",
         long_about: "",
         positionals: &[
@@ -137,6 +183,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "group-by-path", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/group-by-path/{path}",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Get organization group by path",
         long_about: "Returns the organization group with the specified path",
         positionals: &[
@@ -152,6 +204,18 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("populate_hierarchy", "populateHierarchy"),
+            ("q", "q"),
+            ("search", "search"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Get organization groups",
         long_about: "Returns organization groups. When `search` parameter is provided, groups are searched by name. When `q` parameter is provided, groups are searched by attributes. If neither parameter is provided, top-level groups are returned.",
         positionals: &[
@@ -172,6 +236,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "members", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/members/{user_id}",
+        query: &[
+        ],
         about: "Remove a user from this organization group",
         long_about: "Removes a user from this organization group. The user remains a member of the organization.",
         positionals: &[
@@ -186,6 +254,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "members", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/members",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Get members of this organization group",
         long_about: "Returns a paginated list of organization members that belong to this group",
         positionals: &[
@@ -202,6 +277,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "members", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/members/{user_id}",
+        query: &[
+        ],
         about: "Add a user to this organization group",
         long_about: "Adds an organization member to this group. The user must be a member of the organization.",
         positionals: &[
@@ -216,6 +295,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}",
+        query: &[
+        ],
         about: "Update organization group",
         long_about: "Updates the organization group's name, description, and attributes. Subgroups are not affected.",
         positionals: &[
@@ -229,6 +312,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers",
+        query: &[
+        ],
         about: "Adds the identity provider with the specified id to the organization",
         long_about: "Adds, or associates, an existing identity provider with the organization. If no identity provider is found, or if it is already associated with the organization, an error response is returned",
         positionals: &[
@@ -241,6 +328,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers/{alias}",
+        query: &[
+        ],
         about: "Removes the identity provider with the specified alias from the organization",
         long_about: "Breaks the association between the identity provider and the organization. The provider itself is not deleted. If no provider is found, or if it is not currently associated with the org, an error response is returned",
         positionals: &[
@@ -254,6 +345,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers/{alias}",
+        query: &[
+        ],
         about: "Returns the identity provider associated with the organization that has the specified alias",
         long_about: "Searches for an identity provider with the given alias. If one is found and is associated with the organization, it is returned. Otherwise, an error response with status NOT_FOUND is returned",
         positionals: &[
@@ -267,6 +362,17 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers/{alias}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("q", "q"),
+            ("search", "search"),
+            ("sub_groups_count", "subGroupsCount"),
+        ],
         about: "Returns organization groups for the identity provider",
         long_about: "Returns organization groups that can be used in identity provider mappers. Only returns groups if the identity provider is associated with the organization.",
         positionals: &[
@@ -287,6 +393,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers",
+        query: &[
+        ],
         about: "Returns all identity providers associated with the organization",
         long_about: "",
         positionals: &[
@@ -299,6 +409,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "identity-providers", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/organizations/{org_id}/identity-providers/{alias}",
+        query: &[
+        ],
         about: "Updates the per-association config for the identity provider linked to the organization",
         long_about: "Updates the autoMembership and membershipType settings for the link between the organization and the identity provider with the given alias. If the provider is not linked to the organization, a NOT_FOUND error is returned",
         positionals: &[
@@ -312,6 +426,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "invitations", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/invitations/{id}",
+        query: &[
+        ],
         about: "Delete an invitation",
         long_about: "",
         positionals: &[
@@ -325,6 +443,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "invitations", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/invitations/{id}",
+        query: &[
+        ],
         about: "Get invitation by ID",
         long_about: "",
         positionals: &[
@@ -338,6 +460,17 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "invitations", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/invitations",
+        query: &[
+            ("email", "email"),
+            ("first", "first"),
+            ("first_name", "firstName"),
+            ("last_name", "lastName"),
+            ("max", "max"),
+            ("search", "search"),
+            ("status", "status"),
+        ],
         about: "Get invitations for the organization",
         long_about: "",
         positionals: &[
@@ -357,6 +490,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "invitations", "resend", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/invitations/{id}/resend",
+        query: &[
+        ],
         about: "Resend an invitation",
         long_about: "",
         positionals: &[
@@ -370,6 +507,17 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("identity_provider", "identityProvider"),
+            ("max", "max"),
+            ("q", "q"),
+            ("search", "search"),
+        ],
         about: "Returns a paginated list of organizations filtered according to the specified parameters",
         long_about: "",
         positionals: &[
@@ -388,6 +536,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/count",
+        query: &[
+        ],
         about: "Returns number of members in the organization.",
         long_about: "",
         positionals: &[
@@ -400,6 +552,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members",
+        query: &[
+        ],
         about: "Adds the user with the specified id as a member of the organization",
         long_about: "Adds, or associates, an existing user with the organization. If no user is found, or if it is already associated with the organization, an error response is returned",
         positionals: &[
@@ -412,6 +568,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/{member_id}",
+        query: &[
+        ],
         about: "Removes the user with the specified id from the organization",
         long_about: "Breaks the association between the user and organization. The user itself is deleted in case the membership is managed, otherwise the user is not deleted. If no user is found, or if they are not a member of the organization, an error response is returned",
         positionals: &[
@@ -425,6 +585,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/{member_id}",
+        query: &[
+        ],
         about: "Returns the member of the organization with the specified id",
         long_about: "Searches for auser with the given id. If one is found, and is currently a member of the organization, returns it. Otherwise,an error response with status NOT_FOUND is returned",
         positionals: &[
@@ -438,6 +602,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/{member_id}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "Returns the organization group memberships for a member with the specified id",
         long_about: "Searches for auser with the given id. If one is found, and is currently a member of the organization, returns the groups from the organizationwhere the user is member of. Otherwise, an error response with status NOT_FOUND is returned",
         positionals: &[
@@ -455,6 +627,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "invite-existing-user", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/invite-existing-user",
+        query: &[
+        ],
         about: "Invites an existing user to the organization, using the specified user id",
         long_about: "",
         positionals: &[
@@ -467,6 +643,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "invite-user", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/invite-user",
+        query: &[
+            ("client_id", "client_id"),
+        ],
         about: "Invites an existing user or sends a registration link to a new user, based on the provided e-mail address.",
         long_about: "If the user with the given e-mail address exists, it sends an invitation link, otherwise it sends a registration link. The client_id query parameter is optional. If no client_id is provided, the account client is used. After accepting the invitation the user is redirected to the selected client's home URL; for the account client the organization redirect URL is used instead when configured.",
         positionals: &[
@@ -480,6 +661,16 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("max", "max"),
+            ("membership_type", "membershipType"),
+            ("search", "search"),
+        ],
         about: "Returns a paginated list of organization members filtered according to the specified parameters",
         long_about: "",
         positionals: &[
@@ -498,6 +689,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "member-id", "organizations", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/members/{member_id}/organizations",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Returns the organizations associated with the user that has the specified id",
         long_about: "",
         positionals: &[
@@ -511,6 +707,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "members", "membership-type", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/{member_id}/membership-type",
+        query: &[
+        ],
         about: "Updates the membership type of the member with the specified id",
         long_about: "",
         positionals: &[
@@ -524,6 +724,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "org-id", "members", "member-id", "organizations", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/members/{member_id}/organizations",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Returns the organizations associated with the user that has the specified id",
         long_about: "",
         positionals: &[
@@ -538,6 +743,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/organizations/{org_id}",
+        query: &[
+        ],
         about: "Updates the organization",
         long_about: "",
         positionals: &[

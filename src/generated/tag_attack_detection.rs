@@ -17,6 +17,9 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["attack-detection", "brute-force", "users", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/attack-detection/brute-force/users",
+        query: &[],
         about:
             "Clear any user login failures for all users This can release temporary disabled users",
         long_about: "",
@@ -27,6 +30,9 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["attack-detection", "brute-force", "users", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/attack-detection/brute-force/users/{user_id}",
+        query: &[],
         about: "Get status of a username in brute force detection",
         long_about: "",
         positionals: &[ParamSpec {
@@ -48,6 +54,9 @@ pub const COMMANDS: &[CommandSpec] = &[
             "user-id",
             "delete",
         ],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/attack-detection/brute-force/users/{user_id}",
+        query: &[],
         about:
             "Clear any user login failures for the user This can release temporary disabled user",
         long_about: "",

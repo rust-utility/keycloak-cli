@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["admin-events", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/admin-events",
+        query: &[
+        ],
         about: "Delete all admin events",
         long_about: "",
         positionals: &[
@@ -28,6 +32,22 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["admin-events", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/admin-events",
+        query: &[
+            ("auth_client", "authClient"),
+            ("auth_ip_address", "authIpAddress"),
+            ("auth_realm", "authRealm"),
+            ("auth_user", "authUser"),
+            ("date_from", "dateFrom"),
+            ("date_to", "dateTo"),
+            ("direction", "direction"),
+            ("first", "first"),
+            ("max", "max"),
+            ("operation_types", "operationTypes"),
+            ("resource_path", "resourcePath"),
+            ("resource_types", "resourceTypes"),
+        ],
         about: "Get admin events Returns all admin events, or filters events based on URL query parameters listed here",
         long_about: "",
         positionals: &[
@@ -51,6 +71,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-description-converter", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-description-converter",
+        query: &[
+        ],
         about: "Base path for importing clients under this realm.",
         long_about: "",
         positionals: &[
@@ -62,6 +86,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-policies", "policies", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-policies/policies",
+        query: &[
+            ("include_global_policies", "include-global-policies"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -74,6 +103,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-policies", "policies", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/client-policies/policies",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -85,6 +118,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-policies", "profiles", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-policies/profiles",
+        query: &[
+            ("include_global_profiles", "include-global-profiles"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -97,6 +135,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-policies", "profiles", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/client-policies/profiles",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -108,6 +150,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-session-stats", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-session-stats",
+        query: &[
+        ],
         about: "Get client session stats Returns a JSON map.",
         long_about: "The key is the client id, the value is the number of sessions that currently are active with that client. Only clients that actually have a session associated with them will be in this map.",
         positionals: &[
@@ -119,6 +165,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-types", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-types",
+        query: &[
+        ],
         about: "List all client types available in the current realm",
         long_about: "This endpoint returns a list of both global and realm level client types and the attributes they set",
         positionals: &[
@@ -130,6 +180,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-types", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/client-types",
+        query: &[
+        ],
         about: "Update a client type",
         long_about: "This endpoint allows you to update a realm level client type",
         positionals: &[
@@ -141,6 +195,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["credential-registrators", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/credential-registrators",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -152,6 +210,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-default-client-scopes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/default-default-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -164,6 +226,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-default-client-scopes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/default-default-client-scopes",
+        query: &[
+        ],
         about: "Get realm default client scopes. Only name and ids are returned.",
         long_about: "",
         positionals: &[
@@ -175,6 +241,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-default-client-scopes", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/default-default-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -187,6 +257,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-groups", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/default-groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -199,6 +273,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/default-groups",
+        query: &[
+        ],
         about: "Get group hierarchy.  Only name and ids are returned.",
         long_about: "",
         positionals: &[
@@ -210,6 +288,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-groups", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/default-groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -222,6 +304,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-optional-client-scopes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/default-optional-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -234,6 +320,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-optional-client-scopes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/default-optional-client-scopes",
+        query: &[
+        ],
         about: "Get realm optional client scopes. Only name and ids are returned.",
         long_about: "",
         positionals: &[
@@ -245,6 +335,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["default-optional-client-scopes", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/default-optional-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -257,6 +351,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["events", "config", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/events/config",
+        query: &[
+        ],
         about: "Get the events provider configuration Returns JSON object with events provider configuration",
         long_about: "",
         positionals: &[
@@ -268,6 +366,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["events", "config", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/events/config",
+        query: &[
+        ],
         about: "Update the events provider Change the events provider and/or its configuration",
         long_about: "",
         positionals: &[
@@ -279,6 +381,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["events", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/events",
+        query: &[
+        ],
         about: "Delete all events",
         long_about: "",
         positionals: &[
@@ -290,6 +396,19 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["events", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/events",
+        query: &[
+            ("client", "client"),
+            ("date_from", "dateFrom"),
+            ("date_to", "dateTo"),
+            ("direction", "direction"),
+            ("first", "first"),
+            ("ip_address", "ipAddress"),
+            ("max", "max"),
+            ("type_", "type"),
+            ("user", "user"),
+        ],
         about: "Get events Returns all events, or filters them based on URL query parameters listed here",
         long_about: "",
         positionals: &[
@@ -310,6 +429,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["group-by-path", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/group-by-path/{path}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -322,6 +445,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/localization/{locale}",
+        query: &[
+        ],
         about: "Import localization from uploaded JSON file",
         long_about: "",
         positionals: &[
@@ -334,6 +461,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/localization",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -345,6 +476,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "locale", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/localization/{locale}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -357,6 +492,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "locale", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/localization/{locale}",
+        query: &[
+            ("use_realm_default_locale_fallback", "useRealmDefaultLocaleFallback"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -370,6 +510,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "locale", "key", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/localization/{locale}/{key}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -383,6 +527,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "locale", "key", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/localization/{locale}/{key}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -396,6 +544,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["localization", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/localization/{locale}/{key}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -409,6 +561,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["logout-all", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/logout-all",
+        query: &[
+        ],
         about: "Removes all user sessions.",
         long_about: "Any client that has an admin url will also be told to invalidate any sessions they have.",
         positionals: &[
@@ -420,6 +576,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["partial-export", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/partial-export",
+        query: &[
+            ("export_clients", "exportClients"),
+            ("export_groups_and_roles", "exportGroupsAndRoles"),
+        ],
         about: "Partial export of existing realm into a JSON file.",
         long_about: "",
         positionals: &[
@@ -433,6 +595,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["partial-import", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/partialImport",
+        query: &[
+        ],
         about: "Partial import from a JSON file to an existing realm.",
         long_about: "",
         positionals: &[
@@ -444,6 +610,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["push-revocation", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/push-revocation",
+        query: &[
+        ],
         about: "Push the realm's revocation policy to any client that has an admin url associated with it.",
         long_about: "",
         positionals: &[
@@ -455,6 +625,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["realms", "create"],
+        method: "POST",
+        path: "/admin/realms",
+        query: &[
+        ],
         about: "Import a realm. Imports a realm from a full representation of that realm.",
         long_about: "Realm name must be unique.",
         positionals: &[
@@ -466,6 +640,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["realms", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}",
+        query: &[
+        ],
         about: "Delete the realm",
         long_about: "",
         positionals: &[
@@ -477,6 +655,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["realms", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}",
+        query: &[
+        ],
         about: "Get the top-level representation of the realm It will not include nested information like User and Client representations.",
         long_about: "",
         positionals: &[
@@ -488,6 +670,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["realms", "list"],
+        method: "GET",
+        path: "/admin/realms",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get accessible realms Returns a list of accessible realms. The list is filtered based on what realms the caller is allowed to view.",
         long_about: "",
         positionals: &[
@@ -500,6 +687,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["realms", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}",
+        query: &[
+        ],
         about: "Update the top-level information of the realm Any user, roles or client information in the representation will be ignored.",
         long_about: "This will only update top-level attributes of the realm.",
         positionals: &[
@@ -511,6 +702,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["sessions", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/sessions/{session}",
+        query: &[
+            ("is_offline", "isOffline"),
+        ],
         about: "Remove a specific user session.",
         long_about: "Any client that has an admin url will also be told to invalidate this particular session.",
         positionals: &[
@@ -524,6 +720,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["test-smtp-connection", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/testSMTPConnection",
+        query: &[
+        ],
         about: "Test SMTP connection with current logged in user",
         long_about: "",
         positionals: &[
@@ -535,6 +735,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users-management-permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users-management-permissions",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -546,6 +750,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users-management-permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users-management-permissions",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[

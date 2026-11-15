@@ -55,6 +55,12 @@ pub struct ParamSpec {
 pub struct CommandSpec {
     /// The command words, e.g. `["clients", "roles", "get"]`.
     pub words: &'static [&'static str],
+    /// The HTTP method of the operation, e.g. `GET`.
+    pub method: &'static str,
+    /// The path template, e.g. `/admin/realms/{realm}/clients/{client_uuid}`.
+    pub path: &'static str,
+    /// Query parameters: the argument id and the name the API gives it.
+    pub query: &'static [(&'static str, &'static str)],
     /// One line summary, from the operation's `summary`.
     pub about: &'static str,
     /// Longer help, from the operation's `description`.
@@ -163,7 +169,113 @@ fn describe(mut command: Command, spec: &CommandSpec) -> Command {
                 .help("request body: a JSON file, or - for standard input"),
         );
     }
+    if spec.method == "DELETE" {
+        // Destructive: `main` refuses to run it without this flag, and the help
+        // says so instead of surprising the caller.
+        command = command.arg(
+            Arg::new("yes")
+                .long("yes")
+                .action(ArgAction::SetTrue)
+                .help("confirm this destructive operation (delete)"),
+        );
+    }
     command
+}
+
+/// The request a command would send, built from the description rather than from
+/// the crate's internals.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Plan {
+    /// `GET`, `POST`, `PUT`, `PATCH` or `DELETE`.
+    pub method: &'static str,
+    /// Full URL including the query string.
+    pub url: String,
+    /// The body as it would be sent, when the command takes one.
+    pub body: Option<String>,
+}
+
+impl Plan {
+    /// The plan as the lines a dry run prints: the request line, then the body.
+    pub fn render(&self) -> String {
+        let mut text = format!("{} {}\n", self.method, self.url);
+        if let Some(body) = &self.body {
+            text.push_str(body);
+            if !body.ends_with('\n') {
+                text.push('\n');
+            }
+        }
+        text
+    }
+}
+
+/// Builds the request `spec` would send, resolving positionals, flags and body.
+pub fn plan(
+    spec: &CommandSpec,
+    server: &str,
+    realm: &str,
+    args: &ArgMatches,
+) -> Result<Plan, Error> {
+    let mut path = spec.path.replace("{realm}", &encode(realm));
+    for positional in spec.positionals {
+        let value = positional_arg(args, positional.id)?;
+        path = path.replace(&format!("{{{}}}", positional.id), &encode(&value));
+    }
+
+    let mut query = Vec::new();
+    for (id, name) in spec.query {
+        if args.value_source(id) == Some(clap::parser::ValueSource::CommandLine) {
+            if let Some(values) = flag_values(args, id) {
+                for value in values {
+                    query.push(format!("{}={}", encode(name), encode(&value)));
+                }
+            }
+        }
+    }
+    let mut url = format!("{}{}", server.trim_end_matches('/'), path);
+    if !query.is_empty() {
+        url.push('?');
+        url.push_str(&query.join("&"));
+    }
+
+    let body = if spec.body { body_text(args)? } else { None };
+    Ok(Plan {
+        method: spec.method,
+        url,
+        body,
+    })
+}
+
+/// The values of a flag as strings, whatever its kind.
+fn flag_values(args: &ArgMatches, id: &str) -> Option<Vec<String>> {
+    if let Some(value) = text(args, id) {
+        return Some(vec![value]);
+    }
+    if let Some(values) = texts(args, id) {
+        return Some(values);
+    }
+    if let Some(value) = integer(args, id) {
+        return Some(vec![value.to_string()]);
+    }
+    boolean(args, id).map(|_| vec!["true".to_owned()])
+}
+
+/// A required positional.
+fn positional_arg(args: &ArgMatches, id: &str) -> Result<String, Error> {
+    positional(args, id)
+}
+
+/// Percent-encodes everything outside the unreserved set.
+fn encode(value: &str) -> String {
+    let mut encoded = String::with_capacity(value.len());
+    for byte in value.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'.' | b'_' | b'~' => {
+                encoded.push(byte as char)
+            }
+            other => encoded.push_str(&format!("%{other:02X}")),
+        }
+    }
+    encoded
 }
 
 /// Attaches live completion to `arg` when its parameter has a source.
@@ -224,16 +336,23 @@ pub fn positional(args: &ArgMatches, id: &str) -> Result<String, Error> {
     text(args, id).ok_or_else(|| Error::usage(format!("missing <{id}>")))
 }
 
-/// Reads `--body <FILE|->` and deserialises it into the type the crate expects.
-pub fn body<T: DeserializeOwned>(args: &ArgMatches) -> Result<T, Error> {
-    let source = text(args, "body").ok_or_else(|| Error::usage("--body is required"))?;
-    let text = if source == "-" {
+/// Reads `--body <FILE|->` as text, without parsing it.
+pub fn body_text(args: &ArgMatches) -> Result<Option<String>, Error> {
+    let Some(source) = text(args, "body") else {
+        return Ok(None);
+    };
+    if source == "-" {
         let mut text = String::new();
         std::io::stdin().read_to_string(&mut text)?;
-        text
+        Ok(Some(text))
     } else {
-        std::fs::read_to_string(&source)?
-    };
+        Ok(Some(std::fs::read_to_string(&source)?))
+    }
+}
+
+/// Reads `--body <FILE|->` and deserialises it into the type the crate expects.
+pub fn body<T: DeserializeOwned>(args: &ArgMatches) -> Result<T, Error> {
+    let text = body_text(args)?.ok_or_else(|| Error::usage("--body is required"))?;
     Ok(serde_json::from_str(&text)?)
 }
 
@@ -281,6 +400,9 @@ mod tests {
     const SPECS: &[CommandSpec] = &[
         CommandSpec {
             words: &["clients", "list"],
+            method: "GET",
+            path: "/admin/realms/{realm}/clients",
+            query: &[("first", "first"), ("search", "search")],
             about: "Get clients belonging to the realm.",
             long_about: "",
             positionals: &[],
@@ -290,6 +412,9 @@ mod tests {
         },
         CommandSpec {
             words: &["clients", "get"],
+            method: "GET",
+            path: "/admin/realms/{realm}/clients/{client_uuid}",
+            query: &[],
             about: "Get representation of the client.",
             long_about: "The long description.",
             positionals: POSITIONALS,
@@ -299,6 +424,9 @@ mod tests {
         },
         CommandSpec {
             words: &["clients", "roles", "get"],
+            method: "DELETE",
+            path: "/admin/realms/{realm}/clients/{client_uuid}/roles",
+            query: &[],
             about: "",
             long_about: "",
             positionals: POSITIONALS,
@@ -409,6 +537,55 @@ mod tests {
         assert_eq!(
             error.kind(),
             clap::error::ErrorKind::MissingRequiredArgument
+        );
+    }
+
+    /// Parses `args` against the fixture tree and returns the innermost matches.
+    fn matches(args: &[&str]) -> ArgMatches {
+        let mut argv = vec!["keycloak-cli"];
+        argv.extend_from_slice(args);
+        let matches = Command::new("keycloak-cli")
+            .subcommands(tree(SPECS))
+            .try_get_matches_from(argv)
+            .expect("the command line parses");
+        let mut current = matches;
+        while let Some((_, next)) = current.subcommand() {
+            current = next.clone();
+        }
+        current
+    }
+
+    #[test]
+    fn a_plan_is_the_request_the_crate_would_build() {
+        let args = matches(&["clients", "list", "--first", "5", "--search"]);
+        let plan = plan(&SPECS[0], "http://localhost:8080", "master", &args).expect("a plan");
+        assert_eq!(plan.method, "GET");
+        assert_eq!(
+            plan.url,
+            "http://localhost:8080/admin/realms/master/clients?first=5&search=true"
+        );
+        assert_eq!(plan.body, None);
+        assert_eq!(plan.render(), format!("GET {}\n", plan.url));
+    }
+
+    #[test]
+    fn a_plan_substitutes_and_encodes_positionals() {
+        let args = matches(&["clients", "get", "a b/c"]);
+        let plan = plan(&SPECS[1], "http://example.test", "prod", &args).expect("a plan");
+        assert_eq!(
+            plan.url,
+            "http://example.test/admin/realms/prod/clients/a%20b%2Fc"
+        );
+    }
+
+    #[test]
+    fn absent_flags_are_not_part_of_the_plan() {
+        let args = matches(&["clients", "list"]);
+        let plan = plan(&SPECS[0], "http://localhost:8080/", "master", &args).expect("a plan");
+        // Trailing slash on the server does not double up, no query is invented.
+        assert_eq!(
+            plan.url,
+            "http://localhost:8080/admin/realms/master/clients"
         );
     }
 

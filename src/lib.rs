@@ -37,8 +37,9 @@ pub use error::Error;
 
 /// Runs the parsed command line.
 ///
-/// The skeleton only knows [`cli::Command::Info`], which echoes the effective
-/// connection configuration with secrets redacted.
+/// Runs the command that was asked for: the CLI's own (`info`, `init`, `login`,
+/// `logout`, `report`) or one of the generated API commands, which honours
+/// `--dry-run`, `--verbose` and `--yes` for destructive operations.
 pub fn run(cli: Cli) -> Result<(), Error> {
     match &cli.command {
         // No command, or the CLI's own `info`: describe the configuration.
@@ -52,11 +53,7 @@ pub fn run(cli: Cli) -> Result<(), Error> {
         Some(invocation) if invocation.words == ["report"] => report(&cli, invocation),
         Some(invocation) if invocation.words == ["login"] => login(&cli),
         Some(invocation) if invocation.words == ["logout"] => logout(),
-        Some(invocation) => {
-            let config = Config::from(&cli.connection);
-            let value = client::execute(&config, invocation)?;
-            write_value(&value, &cli.output)
-        }
+        Some(invocation) => run_api(&cli, invocation),
     }
 }
 
@@ -66,7 +63,7 @@ fn report(cli: &Cli, invocation: &Invocation) -> Result<(), Error> {
 
     let config = Config::from(&cli.connection);
     let document = client::collect_report(&config)?;
-    let text = match cli.output.output.as_str() {
+    let text = match cli.global.output.as_str() {
         // A report is a document, so `auto` means markdown rather than a table.
         "auto" | "markdown" => document.markdown(),
         "html" => document.html(),
@@ -81,7 +78,9 @@ fn report(cli: &Cli, invocation: &Invocation) -> Result<(), Error> {
     match invocation.args.get_one::<String>("file") {
         Some(path) => {
             std::fs::write(path, text)?;
-            eprintln!("wrote {path}");
+            if !cli.global.quiet {
+                eprintln!("wrote {path}");
+            }
         }
         None => {
             let mut stdout = std::io::stdout();
@@ -166,8 +165,41 @@ fn info(cli: &Cli) -> Result<(), Error> {
     Ok(())
 }
 
+/// Runs a command of the generated tree.
+fn run_api(cli: &Cli, invocation: &Invocation) -> Result<(), Error> {
+    use std::io::Write;
+
+    let config = Config::from(&cli.connection);
+    let spec = generated::spec(&invocation.words());
+
+    if let Some(spec) = spec {
+        // Destructive operations say so before they run.
+        if spec.method == "DELETE" && !cli.global.dry_run && !invocation.args.get_flag("yes") {
+            return Err(Error::usage(format!(
+                "{} deletes data: pass --yes to confirm, or --dry-run to see the request",
+                invocation.words.join(" ")
+            )));
+        }
+        if cli.global.dry_run || cli.global.verbose {
+            let plan = command::plan(spec, &config.server, &config.realm, &invocation.args)?;
+            if cli.global.dry_run {
+                let mut stdout = std::io::stdout();
+                stdout.write_all(plan.render().as_bytes())?;
+                stdout.flush()?;
+                return Ok(());
+            }
+            if !cli.global.quiet {
+                eprintln!("> {} {}", plan.method, plan.url);
+            }
+        }
+    }
+
+    let value = client::execute(&config, invocation)?;
+    write_value(&value, &cli.global)
+}
+
 /// Prints a response in the requested format.
-fn write_value(value: &serde_json::Value, output: &cli::OutputArgs) -> Result<(), Error> {
+fn write_value(value: &serde_json::Value, output: &cli::GlobalArgs) -> Result<(), Error> {
     use std::io::{IsTerminal, Write};
 
     let format = report::Format::from_name(&output.output).ok_or_else(|| {

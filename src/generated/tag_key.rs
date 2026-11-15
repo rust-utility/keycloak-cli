@@ -16,6 +16,9 @@ use crate::error::Error;
 /// The commands of this tag.
 pub const COMMANDS: &[CommandSpec] = &[CommandSpec {
     words: &["keys", "list"],
+    method: "GET",
+    path: "/admin/realms/{realm}/keys",
+    query: &[],
     about: "",
     long_about: "",
     positionals: &[],

@@ -126,6 +126,27 @@ silent. `KEYCLOAK_CLI_NO_LIVE_COMPLETION=1` turns live completion off. How sessi
 registration and the cache work, and what to do when TAB offers nothing, is in
 [`doc/COMPLETION.md`](doc/COMPLETION.md).
 
+## Safety
+
+`--dry-run` prints the request a command would send and changes nothing — the
+method, the URL with its query and, for mutations, the body:
+
+```sh
+$ keycloak-cli --dry-run clients list --first 5
+GET http://localhost:8080/admin/realms/master/clients?first=5
+$ keycloak-cli --dry-run clients create --body client.json
+POST http://localhost:8080/admin/realms/master/clients
+{"clientId":"demo"}
+```
+
+Deletes need confirmation: `keycloak-cli users delete <user-id> --yes`. Without it
+the command exits with a usage error (code 2) and sends nothing; `--dry-run` needs
+no confirmation because it deletes nothing.
+
+`--verbose` logs the request line to stderr before it is sent, `--quiet` keeps
+informational messages off stderr. Responses always go to stdout, so both flags are
+safe to use in scripts and pipes.
+
 ## Reports
 
 `keycloak-cli report` writes a document about the realm: users and their

@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["roles-by-id", "composites", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/composites/clients/{client_uuid}",
+        query: &[
+        ],
         about: "Get client-level roles for the client that are in the role's composite",
         long_about: "",
         positionals: &[
@@ -30,6 +34,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "composites", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/composites",
+        query: &[
+        ],
         about: "Make the role a composite role by associating some child roles",
         long_about: "",
         positionals: &[
@@ -42,6 +50,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "composites", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/composites",
+        query: &[
+        ],
         about: "Remove a set of roles from the role's composite",
         long_about: "",
         positionals: &[
@@ -54,6 +66,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "composites", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/composites",
+        query: &[
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "Get role's children Returns a set of role's children provided the role is a composite.",
         long_about: "",
         positionals: &[
@@ -69,6 +88,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "composites", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/composites/realm",
+        query: &[
+        ],
         about: "Get realm-level roles that are in the role's composite",
         long_about: "",
         positionals: &[
@@ -81,6 +104,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}",
+        query: &[
+        ],
         about: "Delete the role",
         long_about: "",
         positionals: &[
@@ -93,6 +120,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}",
+        query: &[
+        ],
         about: "Get a specific role's representation",
         long_about: "",
         positionals: &[
@@ -105,6 +136,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -117,6 +152,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -129,6 +168,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles-by-id", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/roles-by-id/{role_id}",
+        query: &[
+        ],
         about: "Update the role",
         long_about: "",
         positionals: &[

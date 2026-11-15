@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["groups", "role-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings",
+        query: &[
+        ],
         about: "Get role mappings",
         long_about: "",
         positionals: &[
@@ -29,6 +33,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "role-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that can be mapped",
         long_about: "",
         positionals: &[
@@ -41,6 +49,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "role-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level role mappings This will recurse all composite roles to get the result.",
         long_about: "",
         positionals: &[
@@ -54,6 +67,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "role-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Add realm-level role mappings to the user",
         long_about: "",
         positionals: &[
@@ -66,6 +83,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "role-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Delete realm-level role mappings",
         long_about: "",
         positionals: &[
@@ -78,6 +99,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["groups", "role-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level role mappings",
         long_about: "",
         positionals: &[
@@ -90,6 +115,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings",
+        query: &[
+        ],
         about: "Get role mappings",
         long_about: "",
         positionals: &[
@@ -103,6 +132,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that can be mapped",
         long_about: "",
         positionals: &[
@@ -116,6 +149,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level role mappings This will recurse all composite roles to get the result.",
         long_about: "",
         positionals: &[
@@ -130,6 +168,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Add realm-level role mappings to the user",
         long_about: "",
         positionals: &[
@@ -143,6 +185,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Delete realm-level role mappings",
         long_about: "",
         positionals: &[
@@ -156,6 +202,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["organizations", "groups", "role-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/organizations/{org_id}/groups/{group_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level role mappings",
         long_about: "",
         positionals: &[
@@ -169,6 +219,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings",
+        query: &[
+        ],
         about: "Get role mappings",
         long_about: "",
         positionals: &[
@@ -181,6 +235,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "realm", "available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings/realm/available",
+        query: &[
+        ],
         about: "Get realm-level roles that can be mapped",
         long_about: "",
         positionals: &[
@@ -193,6 +251,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "realm", "composite", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings/realm/composite",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+        ],
         about: "Get effective realm-level role mappings This will recurse all composite roles to get the result.",
         long_about: "",
         positionals: &[
@@ -206,6 +269,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "realm", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Add realm-level role mappings to the user",
         long_about: "",
         positionals: &[
@@ -218,6 +285,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "realm", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Delete realm-level role mappings",
         long_about: "",
         positionals: &[
@@ -230,6 +301,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "role-mappings", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/role-mappings/realm",
+        query: &[
+        ],
         about: "Get realm-level role mappings",
         long_about: "",
         positionals: &[

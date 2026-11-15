@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["identity-provider", "import-config", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/identity-provider/import-config",
+        query: &[
+        ],
         about: "Import identity provider from JSON body",
         long_about: "Import identity provider from uploaded JSON file",
         positionals: &[
@@ -28,6 +32,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/identity-provider/instances",
+        query: &[
+        ],
         about: "Create a new identity provider",
         long_about: "",
         positionals: &[
@@ -39,6 +47,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}",
+        query: &[
+        ],
         about: "Delete the identity provider",
         long_about: "",
         positionals: &[
@@ -51,6 +63,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "export", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/export",
+        query: &[
+            ("format", "format"),
+        ],
         about: "Export public broker configuration for identity provider",
         long_about: "",
         positionals: &[
@@ -64,6 +81,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}",
+        query: &[
+        ],
         about: "Get the identity provider",
         long_about: "",
         positionals: &[
@@ -76,6 +97,17 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("capability", "capability"),
+            ("first", "first"),
+            ("max", "max"),
+            ("realm_only", "realmOnly"),
+            ("search", "search"),
+            ("type_", "type"),
+        ],
         about: "List identity providers",
         long_about: "",
         positionals: &[
@@ -94,6 +126,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -106,6 +142,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -118,6 +158,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mapper-types", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mapper-types",
+        query: &[
+        ],
         about: "Get mapper types for identity provider",
         long_about: "",
         positionals: &[
@@ -130,6 +174,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mappers", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+        query: &[
+        ],
         about: "Add a mapper to identity provider",
         long_about: "",
         positionals: &[
@@ -142,6 +190,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mappers", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+        query: &[
+        ],
         about: "Delete a mapper for the identity provider",
         long_about: "",
         positionals: &[
@@ -155,6 +207,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mappers", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+        query: &[
+        ],
         about: "Get mapper by id for the identity provider",
         long_about: "",
         positionals: &[
@@ -168,6 +224,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mappers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mappers",
+        query: &[
+        ],
         about: "Get mappers for identity provider",
         long_about: "",
         positionals: &[
@@ -180,6 +240,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "mappers", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/mappers/{id}",
+        query: &[
+        ],
         about: "Update a mapper for the identity provider",
         long_about: "",
         positionals: &[
@@ -193,6 +257,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "reload-keys", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}/reload-keys",
+        query: &[
+        ],
         about: "Reaload keys for the identity provider if the provider supports it, \"true\" is returned if reload was performed, \"false\" if not.",
         long_about: "",
         positionals: &[
@@ -205,6 +273,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "instances", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/identity-provider/instances/{alias}",
+        query: &[
+        ],
         about: "Update the identity provider",
         long_about: "",
         positionals: &[
@@ -217,6 +289,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "providers", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/identity-provider/providers/{provider_id}",
+        query: &[
+        ],
         about: "Get the identity provider factory for that provider id",
         long_about: "",
         positionals: &[

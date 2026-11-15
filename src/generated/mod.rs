@@ -121,6 +121,11 @@ pub fn specs() -> Vec<&'static crate::command::CommandSpec> {
     specs
 }
 
+/// The command named by `words`, when this build ships it.
+pub fn spec(words: &[&str]) -> Option<&'static crate::command::CommandSpec> {
+    specs().into_iter().find(|spec| spec.words == words)
+}
+
 /// The top level commands of every enabled tag.
 pub fn commands() -> Vec<clap::Command> {
     crate::command::tree(specs())

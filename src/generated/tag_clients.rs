@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["clients", "client-secret", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/client-secret",
+        query: &[
+        ],
         about: "Generate a new secret for the client",
         long_about: "",
         positionals: &[
@@ -29,6 +33,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "client-secret", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/client-secret",
+        query: &[
+        ],
         about: "Get the client secret",
         long_about: "",
         positionals: &[
@@ -41,6 +49,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "client-secret", "rotated", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/client-secret/rotated",
+        query: &[
+        ],
         about: "Invalidate the rotated secret for the client",
         long_about: "",
         positionals: &[
@@ -53,6 +65,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "client-secret", "rotated", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/client-secret/rotated",
+        query: &[
+        ],
         about: "Get the rotated client secret",
         long_about: "",
         positionals: &[
@@ -65,6 +81,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients",
+        query: &[
+        ],
         about: "Create a new client Client’s client_id must be unique!",
         long_about: "",
         positionals: &[
@@ -76,6 +96,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "default-client-scopes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/default-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -89,6 +113,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "default-client-scopes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/default-client-scopes",
+        query: &[
+        ],
         about: "Get default client scopes.  Only name and ids are returned.",
         long_about: "",
         positionals: &[
@@ -101,6 +129,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "default-client-scopes", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/default-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -114,6 +146,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}",
+        query: &[
+        ],
         about: "Delete the client",
         long_about: "",
         positionals: &[
@@ -126,6 +162,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "generate-example-access-token", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/generate-example-access-token",
+        query: &[
+            ("audience", "audience"),
+            ("scope", "scope"),
+            ("user_id", "userId"),
+        ],
         about: "Create JSON with payload of example access token",
         long_about: "",
         positionals: &[
@@ -141,6 +184,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "generate-example-id-token", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/generate-example-id-token",
+        query: &[
+            ("audience", "audience"),
+            ("scope", "scope"),
+            ("user_id", "userId"),
+        ],
         about: "Create JSON with payload of example id token",
         long_about: "",
         positionals: &[
@@ -156,6 +206,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "generate-example-saml-response", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/generate-example-saml-response",
+        query: &[
+            ("audience", "audience"),
+            ("scope", "scope"),
+            ("user_id", "userId"),
+        ],
         about: "Create JSON with an example SAML response as payload",
         long_about: "",
         positionals: &[
@@ -171,6 +228,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "generate-example-userinfo", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/generate-example-userinfo",
+        query: &[
+            ("scope", "scope"),
+            ("user_id", "userId"),
+        ],
         about: "Create JSON with payload of example user info",
         long_about: "",
         positionals: &[
@@ -185,6 +248,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "protocol-mappers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/protocol-mappers",
+        query: &[
+            ("scope", "scope"),
+        ],
         about: "Return list of all protocol mappers, which will be used when generating tokens issued for particular client.",
         long_about: "This means protocol mappers assigned to this client directly and protocol mappers assigned to all client scopes of this client.",
         positionals: &[
@@ -198,6 +266,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "scope-mappings", "granted", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/scope-mappings/{role_container_id}/granted",
+        query: &[
+            ("scope", "scope"),
+        ],
         about: "Get effective scope mapping of all roles of particular role container, which this client is defacto allowed to have in the accessToken issued for him.",
         long_about: "This contains scope mappings, which this client has directly, as well as scope mappings, which are granted to all client scopes, which are linked with this client.",
         positionals: &[
@@ -212,6 +285,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "evaluate-scopes", "scope-mappings", "not-granted", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/evaluate-scopes/scope-mappings/{role_container_id}/not-granted",
+        query: &[
+            ("scope", "scope"),
+        ],
         about: "Get roles, which this client doesn't have scope for and can't have them in the accessToken issued for him.",
         long_about: "Defacto all the other roles of particular role container, which are not in {@link #getGrantedScopeMappings()}",
         positionals: &[
@@ -226,6 +304,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}",
+        query: &[
+        ],
         about: "Get representation of the client",
         long_about: "",
         positionals: &[
@@ -238,6 +320,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "installation", "providers", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/installation/providers/{provider_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -251,6 +337,16 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients",
+        query: &[
+            ("client_id", "clientId"),
+            ("first", "first"),
+            ("max", "max"),
+            ("q", "q"),
+            ("search", "search"),
+            ("viewable_only", "viewableOnly"),
+        ],
         about: "Get clients belonging to the realm.",
         long_about: "If a client can’t be retrieved from the storage due to a problem with the underlying storage, it is silently removed from the returned list. This ensures that concurrent modifications to the list don’t prevent callers from retrieving this list.",
         positionals: &[
@@ -268,6 +364,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -280,6 +380,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether client Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -292,6 +396,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "nodes", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/nodes",
+        query: &[
+        ],
         about: "Register a cluster node with the client Manually register cluster node to this client - usually it’s not needed to call this directly as adapter should handle by sending registration request to Keycloak",
         long_about: "",
         positionals: &[
@@ -304,6 +412,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "nodes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/nodes/{node}",
+        query: &[
+        ],
         about: "Unregister a cluster node from the client",
         long_about: "",
         positionals: &[
@@ -317,6 +429,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "offline-session-count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/offline-session-count",
+        query: &[
+        ],
         about: "Get application offline session count Returns a number of offline user sessions associated with this client { \"count\": number }",
         long_about: "",
         positionals: &[
@@ -329,6 +445,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "offline-sessions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/offline-sessions",
+        query: &[
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Get offline sessions for client. Returns a list of offline user sessions associated with this client",
         long_about: "",
         positionals: &[
@@ -343,6 +465,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "optional-client-scopes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/optional-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -356,6 +482,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "optional-client-scopes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/optional-client-scopes",
+        query: &[
+        ],
         about: "Get optional client scopes.  Only name and ids are returned.",
         long_about: "",
         positionals: &[
@@ -368,6 +498,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "optional-client-scopes", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/optional-client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -381,6 +515,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "push-revocation", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/push-revocation",
+        query: &[
+        ],
         about: "Push the client's revocation policy to its admin URL If the client has an admin URL, push revocation policy to it.",
         long_about: "",
         positionals: &[
@@ -393,6 +531,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "registration-access-token", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/registration-access-token",
+        query: &[
+        ],
         about: "Generate a new registration access token for the client",
         long_about: "",
         positionals: &[
@@ -405,6 +547,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "service-account-user", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/service-account-user",
+        query: &[
+        ],
         about: "Get a user dedicated to the service account",
         long_about: "",
         positionals: &[
@@ -417,6 +563,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "session-count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/session-count",
+        query: &[
+        ],
         about: "Get application session count Returns a number of user sessions associated with this client { \"count\": number }",
         long_about: "",
         positionals: &[
@@ -429,6 +579,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "test-nodes-available", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/test-nodes-available",
+        query: &[
+        ],
         about: "Test if registered cluster nodes are available Tests availability by sending 'ping' request to all cluster nodes.",
         long_about: "",
         positionals: &[
@@ -441,6 +595,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}",
+        query: &[
+        ],
         about: "Update the client",
         long_about: "",
         positionals: &[
@@ -453,6 +611,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "user-sessions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/user-sessions",
+        query: &[
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Get user sessions for client. Returns a list of user sessions associated with this client.",
         long_about: "",
         positionals: &[

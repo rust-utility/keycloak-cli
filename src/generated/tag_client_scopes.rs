@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["client-scopes", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-scopes",
+        query: &[
+        ],
         about: "Create a new client scope Client Scope’s name must be unique!",
         long_about: "",
         positionals: &[
@@ -28,6 +32,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "Delete the client scope",
         long_about: "",
         positionals: &[
@@ -40,6 +48,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "Get representation of the client scope",
         long_about: "",
         positionals: &[
@@ -52,6 +64,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-scopes",
+        query: &[
+        ],
         about: "Get client scopes belonging to the realm Returns a list of client scopes belonging to the realm",
         long_about: "",
         positionals: &[
@@ -63,6 +79,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-scopes", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/client-scopes/{client_scope_id}",
+        query: &[
+        ],
         about: "Update the client scope",
         long_about: "",
         positionals: &[
@@ -75,6 +95,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/client-templates",
+        query: &[
+        ],
         about: "Create a new client scope Client Scope’s name must be unique!",
         long_about: "",
         positionals: &[
@@ -86,6 +110,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}",
+        query: &[
+        ],
         about: "Delete the client scope",
         long_about: "",
         positionals: &[
@@ -98,6 +126,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}",
+        query: &[
+        ],
         about: "Get representation of the client scope",
         long_about: "",
         positionals: &[
@@ -110,6 +142,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/client-templates",
+        query: &[
+        ],
         about: "Get client scopes belonging to the realm Returns a list of client scopes belonging to the realm",
         long_about: "",
         positionals: &[
@@ -121,6 +157,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["client-templates", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/client-templates/{client_scope_id}",
+        query: &[
+        ],
         about: "Update the client scope",
         long_about: "",
         positionals: &[

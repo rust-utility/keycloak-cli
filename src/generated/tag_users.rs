@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["users", "configured-user-storage-credential-types", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/configured-user-storage-credential-types",
+        query: &[
+        ],
         about: "Return credential types, which are provided by the user storage where user is stored.",
         long_about: "Returned values can contain for example \"password\", \"otp\" etc. This will always return empty list for \"local\" users, which are not backed by any user storage",
         positionals: &[
@@ -29,6 +33,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "consents", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}/consents/{client}",
+        query: &[
+        ],
         about: "Revoke consent and offline tokens for particular client from user",
         long_about: "",
         positionals: &[
@@ -42,6 +50,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "consents", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/consents",
+        query: &[
+        ],
         about: "Get consents granted by the user",
         long_about: "",
         positionals: &[
@@ -54,6 +66,23 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/count",
+        query: &[
+            ("created_after", "createdAfter"),
+            ("created_before", "createdBefore"),
+            ("email", "email"),
+            ("email_verified", "emailVerified"),
+            ("enabled", "enabled"),
+            ("exact", "exact"),
+            ("first_name", "firstName"),
+            ("idp_alias", "idpAlias"),
+            ("idp_user_id", "idpUserId"),
+            ("last_name", "lastName"),
+            ("q", "q"),
+            ("search", "search"),
+            ("username", "username"),
+        ],
         about: "Returns the number of users that match the given criteria.",
         long_about: "It can be called in three different ways. 1. Don’t specify any criteria and pass {@code null}. The number of all users within that realm will be returned. <p> 2. If {@code search} is specified other criteria such as {@code last} will be ignored even though you set them. The {@code search} string will be matched against the first and last name, the username and the email of a user. <p> 3. If {@code search} is unspecified but any of {@code last}, {@code first}, {@code email} or {@code username} those criteria are matched against their respective fields on a user entity. Combined with a logical and.",
         positionals: &[
@@ -78,6 +107,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users",
+        query: &[
+        ],
         about: "Create a new user Username must be unique.",
         long_about: "",
         positionals: &[
@@ -89,6 +122,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "credentials", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}/credentials/{credential_id}",
+        query: &[
+        ],
         about: "Remove a credential for a user",
         long_about: "",
         positionals: &[
@@ -102,6 +139,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "credentials", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/credentials",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -114,6 +155,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "credentials", "move-after", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/credentials/{credential_id}/moveAfter/{new_previous_credential_id}",
+        query: &[
+        ],
         about: "Move a credential to a position behind another credential",
         long_about: "",
         positionals: &[
@@ -128,6 +173,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "credentials", "move-to-first", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/credentials/{credential_id}/moveToFirst",
+        query: &[
+        ],
         about: "Move a credential to a first position in the credentials list of the user",
         long_about: "",
         positionals: &[
@@ -141,6 +190,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "credentials", "user-label", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/credentials/{credential_id}/userLabel",
+        query: &[
+        ],
         about: "Update a credential label for a user",
         long_about: "",
         positionals: &[
@@ -154,6 +207,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}",
+        query: &[
+        ],
         about: "Delete the user",
         long_about: "",
         positionals: &[
@@ -166,6 +223,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "disable-credential-types", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/disable-credential-types",
+        query: &[
+        ],
         about: "Disable all credentials for a user of a specific type",
         long_about: "",
         positionals: &[
@@ -178,6 +239,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "execute-actions-email", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/execute-actions-email",
+        query: &[
+            ("client_id", "client_id"),
+            ("lifespan", "lifespan"),
+            ("redirect_uri", "redirect_uri"),
+        ],
         about: "Send an email to the user with a link they can click to execute particular actions.",
         long_about: "An email contains a link the user can click to perform a set of required actions. The redirectUri and clientId parameters are optional. If no redirect is given, then there will be no link back to click after actions have completed. Redirect uri must be a valid uri for the particular clientId.",
         positionals: &[
@@ -193,6 +261,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "federated-identity", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/federated-identity/{provider}",
+        query: &[
+        ],
         about: "Add a social login provider to the user",
         long_about: "",
         positionals: &[
@@ -206,6 +278,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "federated-identity", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}/federated-identity/{provider}",
+        query: &[
+        ],
         about: "Remove a social login provider from user",
         long_about: "",
         positionals: &[
@@ -219,6 +295,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "federated-identity", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/federated-identity",
+        query: &[
+        ],
         about: "Get social logins associated with the user",
         long_about: "",
         positionals: &[
@@ -231,6 +311,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}",
+        query: &[
+            ("user_profile_metadata", "userProfileMetadata"),
+        ],
         about: "Get representation of the user",
         long_about: "",
         positionals: &[
@@ -244,6 +329,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "groups", "count", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/groups/count",
+        query: &[
+            ("search", "search"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -257,6 +347,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "groups", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/users/{user_id}/groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -270,6 +364,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -286,6 +388,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "groups", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/groups/{group_id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -299,6 +405,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "impersonation", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/impersonation",
+        query: &[
+        ],
         about: "Impersonate the user",
         long_about: "",
         positionals: &[
@@ -311,6 +421,26 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("created_after", "createdAfter"),
+            ("created_before", "createdBefore"),
+            ("email", "email"),
+            ("email_verified", "emailVerified"),
+            ("enabled", "enabled"),
+            ("exact", "exact"),
+            ("first", "first"),
+            ("first_name", "firstName"),
+            ("idp_alias", "idpAlias"),
+            ("idp_user_id", "idpUserId"),
+            ("last_name", "lastName"),
+            ("max", "max"),
+            ("q", "q"),
+            ("search", "search"),
+            ("username", "username"),
+        ],
         about: "Get users Returns a stream of users, filtered according to query parameters.",
         long_about: "Returns a stream of users. Note that the 'credentials' field in the returned UserRepresentation objects is typically not populated for performance reasons. If specific credential metadata is required, use the dedicated 'GET /admin/realms/{realm}/users/{user-id}/credentials' endpoint.",
         positionals: &[
@@ -338,6 +468,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "logout", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/users/{user_id}/logout",
+        query: &[
+        ],
         about: "Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.",
         long_about: "",
         positionals: &[
@@ -350,6 +484,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "offline-sessions", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/offline-sessions/{client_uuid}",
+        query: &[
+        ],
         about: "Get offline sessions associated with the user and client",
         long_about: "",
         positionals: &[
@@ -363,6 +501,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "profile", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/profile",
+        query: &[
+        ],
         about: "Get the configuration for the user profile",
         long_about: "",
         positionals: &[
@@ -374,6 +516,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "profile", "metadata", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/profile/metadata",
+        query: &[
+        ],
         about: "Get the UserProfileMetadata from the configuration",
         long_about: "",
         positionals: &[
@@ -385,6 +531,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "profile", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/profile",
+        query: &[
+        ],
         about: "Set the configuration for the user profile",
         long_about: "",
         positionals: &[
@@ -396,6 +546,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "reset-password", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/reset-password",
+        query: &[
+        ],
         about: "Set up a new password for the user.",
         long_about: "",
         positionals: &[
@@ -408,6 +562,12 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "reset-password-email", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/reset-password-email",
+        query: &[
+            ("client_id", "client_id"),
+            ("redirect_uri", "redirect_uri"),
+        ],
         about: "Send an email to the user with a link they can click to reset their password.",
         long_about: "The redirectUri and clientId parameters are optional. The default for the redirect is the account client. This endpoint has been deprecated.  Please use the execute-actions-email passing a list with UPDATE_PASSWORD within it.",
         positionals: &[
@@ -422,6 +582,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "send-verify-email", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}/send-verify-email",
+        query: &[
+            ("client_id", "client_id"),
+            ("lifespan", "lifespan"),
+            ("redirect_uri", "redirect_uri"),
+        ],
         about: "Send an email-verification email to the user An email contains a link the user can click to verify their email address.",
         long_about: "The redirectUri, clientId and lifespan parameters are optional. The default for the redirect is the account client. The default for the lifespan is 12 hours",
         positionals: &[
@@ -437,6 +604,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "sessions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/sessions",
+        query: &[
+        ],
         about: "Get sessions associated with the user",
         long_about: "",
         positionals: &[
@@ -449,6 +620,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "unmanaged-attributes", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/users/{user_id}/unmanagedAttributes",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -461,6 +636,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["users", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/users/{user_id}",
+        query: &[
+        ],
         about: "Update the user",
         long_about: "",
         positionals: &[

@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["clients", "roles", "composites", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/composites/clients/{target_client_uuid}",
+        query: &[
+        ],
         about: "Get client-level roles for the client that are in the role's composite",
         long_about: "",
         positionals: &[
@@ -31,6 +35,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "composites", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Add a composite to the role",
         long_about: "",
         positionals: &[
@@ -44,6 +52,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "composites", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Remove roles from the role's composite",
         long_about: "",
         positionals: &[
@@ -57,6 +69,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "composites", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Get composites of the role",
         long_about: "",
         positionals: &[
@@ -70,6 +86,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "composites", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/composites/realm",
+        query: &[
+        ],
         about: "Get realm-level roles of the role's composite",
         long_about: "",
         positionals: &[
@@ -83,6 +103,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles",
+        query: &[
+        ],
         about: "Create a new role for the realm or client",
         long_about: "",
         positionals: &[
@@ -95,6 +119,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}",
+        query: &[
+        ],
         about: "Delete a role by name",
         long_about: "",
         positionals: &[
@@ -108,6 +136,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}",
+        query: &[
+        ],
         about: "Get a role by name",
         long_about: "",
         positionals: &[
@@ -121,6 +153,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Returns a stream of groups that have the specified role name",
         long_about: "",
         positionals: &[
@@ -137,6 +176,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "Get all roles for the realm or client",
         long_about: "",
         positionals: &[
@@ -153,6 +200,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -166,6 +217,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -179,6 +234,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}",
+        query: &[
+        ],
         about: "Update a role by name",
         long_about: "",
         positionals: &[
@@ -192,6 +251,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "roles", "users", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/roles/{role_name}/users",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Returns a stream of users that have the specified role name.",
         long_about: "",
         positionals: &[
@@ -208,6 +274,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "composites", "clients", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/composites/clients/{target_client_uuid}",
+        query: &[
+        ],
         about: "Get client-level roles for the client that are in the role's composite",
         long_about: "",
         positionals: &[
@@ -221,6 +291,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "composites", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Add a composite to the role",
         long_about: "",
         positionals: &[
@@ -233,6 +307,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "composites", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Remove roles from the role's composite",
         long_about: "",
         positionals: &[
@@ -245,6 +323,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "composites", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/composites",
+        query: &[
+        ],
         about: "Get composites of the role",
         long_about: "",
         positionals: &[
@@ -257,6 +339,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "composites", "realm", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/composites/realm",
+        query: &[
+        ],
         about: "Get realm-level roles of the role's composite",
         long_about: "",
         positionals: &[
@@ -269,6 +355,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/roles",
+        query: &[
+        ],
         about: "Create a new role for the realm or client",
         long_about: "",
         positionals: &[
@@ -280,6 +370,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/roles/{role_name}",
+        query: &[
+        ],
         about: "Delete a role by name",
         long_about: "",
         positionals: &[
@@ -292,6 +386,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}",
+        query: &[
+        ],
         about: "Get a role by name",
         long_about: "",
         positionals: &[
@@ -304,6 +402,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "groups", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/groups",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Returns a stream of groups that have the specified role name",
         long_about: "",
         positionals: &[
@@ -319,6 +424,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+            ("search", "search"),
+        ],
         about: "Get all roles for the realm or client",
         long_about: "",
         positionals: &[
@@ -334,6 +447,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "management", "permissions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -346,6 +463,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "management", "permissions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/roles/{role_name}/management/permissions",
+        query: &[
+        ],
         about: "Return object stating whether role Authorization permissions have been initialized or not and a reference",
         long_about: "",
         positionals: &[
@@ -358,6 +479,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/roles/{role_name}",
+        query: &[
+        ],
         about: "Update a role by name",
         long_about: "",
         positionals: &[
@@ -370,6 +495,13 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["roles", "users", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/roles/{role_name}/users",
+        query: &[
+            ("brief_representation", "briefRepresentation"),
+            ("first", "first"),
+            ("max", "max"),
+        ],
         about: "Returns a stream of users that have the specified role name.",
         long_about: "",
         positionals: &[

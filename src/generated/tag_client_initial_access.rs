@@ -17,6 +17,9 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["clients-initial-access", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients-initial-access",
+        query: &[],
         about: "Create a new initial access token.",
         long_about: "",
         positionals: &[],
@@ -26,6 +29,9 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients-initial-access", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/clients-initial-access/{id}",
+        query: &[],
         about: "",
         long_about: "",
         positionals: &[ParamSpec {
@@ -41,6 +47,9 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients-initial-access", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients-initial-access",
+        query: &[],
         about: "",
         long_about: "",
         positionals: &[],

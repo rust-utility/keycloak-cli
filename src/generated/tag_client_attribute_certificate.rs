@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["clients", "certificates", "download", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}/download",
+        query: &[
+        ],
         about: "Get a keystore file for the client, containing the public certificate",
         long_about: "",
         positionals: &[
@@ -30,6 +34,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "certificates", "generate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}/generate",
+        query: &[
+        ],
         about: "Generate a new certificate with new key pair",
         long_about: "",
         positionals: &[
@@ -43,6 +51,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "certificates", "generate-and-download", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}/generate-and-download",
+        query: &[
+        ],
         about: "Generate a new keypair and certificate, and get the private key file",
         long_about: "",
         positionals: &[
@@ -56,6 +68,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "certificates", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}",
+        query: &[
+        ],
         about: "Get key info",
         long_about: "",
         positionals: &[
@@ -69,6 +85,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "certificates", "upload", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}/upload",
+        query: &[
+        ],
         about: "Upload only certificate, not private key",
         long_about: "",
         positionals: &[
@@ -82,6 +102,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["clients", "certificates", "upload-certificate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/clients/{client_uuid}/certificates/{attr}/upload-certificate",
+        query: &[
+        ],
         about: "Upload only certificate, not private key",
         long_about: "",
         positionals: &[
@@ -95,6 +119,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["identity-provider", "upload-certificate", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/identity-provider/upload-certificate",
+        query: &[
+        ],
         about: "Uploads a certificate, prepares the jwks or public key associated, and returns the certificate representation.",
         long_about: "",
         positionals: &[

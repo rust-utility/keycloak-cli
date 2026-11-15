@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["authentication", "authenticator-providers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/authenticator-providers",
+        query: &[
+        ],
         about: "Get authenticator providers Returns a stream of authenticator providers.",
         long_about: "",
         positionals: &[
@@ -28,6 +32,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "client-authenticator-providers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/client-authenticator-providers",
+        query: &[
+        ],
         about: "Get client authenticator providers Returns a stream of client authenticator providers.",
         long_about: "",
         positionals: &[
@@ -39,6 +47,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "config", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/config",
+        query: &[
+        ],
         about: "Create new authenticator configuration",
         long_about: "",
         positionals: &[
@@ -50,6 +62,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "config", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/authentication/config/{id}",
+        query: &[
+        ],
         about: "Delete authenticator configuration",
         long_about: "",
         positionals: &[
@@ -62,6 +78,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "config", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/config/{id}",
+        query: &[
+        ],
         about: "Get authenticator configuration",
         long_about: "",
         positionals: &[
@@ -74,6 +94,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "config", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/authentication/config/{id}",
+        query: &[
+        ],
         about: "Update authenticator configuration",
         long_about: "",
         positionals: &[
@@ -86,6 +110,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "config-description", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/config-description/{provider_id}",
+        query: &[
+        ],
         about: "Get authenticator provider's configuration description",
         long_about: "",
         positionals: &[
@@ -98,6 +126,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "config", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}/config",
+        query: &[
+        ],
         about: "Update execution with new configuration",
         long_about: "",
         positionals: &[
@@ -110,6 +142,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "config", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}/config/{id}",
+        query: &[
+        ],
         about: "Get execution's configuration",
         long_about: "",
         positionals: &[
@@ -123,6 +159,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/executions",
+        query: &[
+        ],
         about: "Add new authentication execution",
         long_about: "",
         positionals: &[
@@ -134,6 +174,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}",
+        query: &[
+        ],
         about: "Delete execution",
         long_about: "",
         positionals: &[
@@ -146,6 +190,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}",
+        query: &[
+        ],
         about: "Get Single Execution",
         long_about: "",
         positionals: &[
@@ -158,6 +206,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "lower-priority", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}/lower-priority",
+        query: &[
+        ],
         about: "Lower execution's priority",
         long_about: "",
         positionals: &[
@@ -170,6 +222,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "executions", "raise-priority", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/executions/{execution_id}/raise-priority",
+        query: &[
+        ],
         about: "Raise execution's priority",
         long_about: "",
         positionals: &[
@@ -182,6 +238,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "copy", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/flows/{flow_alias}/copy",
+        query: &[
+        ],
         about: "Copy existing authentication flow under a new name The new name is given as 'newName' attribute of the passed JSON object",
         long_about: "",
         positionals: &[
@@ -194,6 +254,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/flows",
+        query: &[
+        ],
         about: "Create a new authentication flow",
         long_about: "",
         positionals: &[
@@ -205,6 +269,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/authentication/flows/{id}",
+        query: &[
+        ],
         about: "Delete an authentication flow",
         long_about: "",
         positionals: &[
@@ -217,6 +285,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "executions", "execution", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/flows/{flow_alias}/executions/execution",
+        query: &[
+        ],
         about: "Add new authentication execution to a flow",
         long_about: "",
         positionals: &[
@@ -229,6 +301,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "executions", "flow", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/flows/{flow_alias}/executions/flow",
+        query: &[
+        ],
         about: "Add new flow with new execution to existing flow",
         long_about: "",
         positionals: &[
@@ -241,6 +317,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "executions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/flows/{flow_alias}/executions",
+        query: &[
+        ],
         about: "Get authentication executions for a flow",
         long_about: "",
         positionals: &[
@@ -253,6 +333,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "executions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/authentication/flows/{flow_alias}/executions",
+        query: &[
+        ],
         about: "Update authentication executions of a Flow",
         long_about: "",
         positionals: &[
@@ -265,6 +349,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/flows/{id}",
+        query: &[
+        ],
         about: "Get authentication flow for id",
         long_about: "",
         positionals: &[
@@ -277,6 +365,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/flows",
+        query: &[
+        ],
         about: "Get authentication flows Returns a stream of authentication flows.",
         long_about: "",
         positionals: &[
@@ -288,6 +380,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "flows", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/authentication/flows/{id}",
+        query: &[
+        ],
         about: "Update an authentication flow",
         long_about: "",
         positionals: &[
@@ -300,6 +396,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "form-action-providers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/form-action-providers",
+        query: &[
+        ],
         about: "Get form action providers Returns a stream of form action providers.",
         long_about: "",
         positionals: &[
@@ -311,6 +411,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "form-providers", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/form-providers",
+        query: &[
+        ],
         about: "Get form providers Returns a stream of form providers.",
         long_about: "",
         positionals: &[
@@ -322,6 +426,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "per-client-config-description", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/per-client-config-description",
+        query: &[
+        ],
         about: "Get configuration descriptions for all clients",
         long_about: "",
         positionals: &[
@@ -333,6 +441,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "register-required-action", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/register-required-action",
+        query: &[
+        ],
         about: "Register a new required actions",
         long_about: "",
         positionals: &[
@@ -344,6 +456,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "config", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/config",
+        query: &[
+        ],
         about: "Delete RequiredAction configuration",
         long_about: "",
         positionals: &[
@@ -356,6 +472,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "config", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/config",
+        query: &[
+        ],
         about: "Get RequiredAction configuration",
         long_about: "",
         positionals: &[
@@ -368,6 +488,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "config", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/config",
+        query: &[
+        ],
         about: "Update RequiredAction configuration",
         long_about: "",
         positionals: &[
@@ -380,6 +504,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "config-description", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/config-description",
+        query: &[
+        ],
         about: "Get RequiredAction provider configuration description",
         long_about: "",
         positionals: &[
@@ -392,6 +520,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}",
+        query: &[
+        ],
         about: "Delete required action",
         long_about: "",
         positionals: &[
@@ -404,6 +536,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}",
+        query: &[
+        ],
         about: "Get required action for alias",
         long_about: "",
         positionals: &[
@@ -416,6 +552,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/required-actions",
+        query: &[
+        ],
         about: "Get required actions Returns a stream of required actions.",
         long_about: "",
         positionals: &[
@@ -427,6 +567,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "lower-priority", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/lower-priority",
+        query: &[
+        ],
         about: "Lower required action's priority",
         long_about: "",
         positionals: &[
@@ -439,6 +583,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "raise-priority", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}/raise-priority",
+        query: &[
+        ],
         about: "Raise required action's priority",
         long_about: "",
         positionals: &[
@@ -451,6 +599,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "required-actions", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/authentication/required-actions/{alias}",
+        query: &[
+        ],
         about: "Update required action",
         long_about: "",
         positionals: &[
@@ -463,6 +615,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["authentication", "unregistered-required-actions", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/authentication/unregistered-required-actions",
+        query: &[
+        ],
         about: "Get unregistered required actions Returns a stream of unregistered required actions.",
         long_about: "",
         positionals: &[

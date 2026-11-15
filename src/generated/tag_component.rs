@@ -17,6 +17,10 @@ use crate::error::Error;
 pub const COMMANDS: &[CommandSpec] = &[
     CommandSpec {
         words: &["components", "create"],
+        method: "POST",
+        path: "/admin/realms/{realm}/components",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -28,6 +32,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["components", "delete"],
+        method: "DELETE",
+        path: "/admin/realms/{realm}/components/{id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -40,6 +48,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["components", "get"],
+        method: "GET",
+        path: "/admin/realms/{realm}/components/{id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -52,6 +64,14 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["components", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/components",
+        query: &[
+            ("name", "name"),
+            ("parent", "parent"),
+            ("provider_id", "providerId"),
+            ("type_", "type"),
+        ],
         about: "",
         long_about: "",
         positionals: &[
@@ -67,6 +87,11 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["components", "sub-component-types", "list"],
+        method: "GET",
+        path: "/admin/realms/{realm}/components/{id}/sub-component-types",
+        query: &[
+            ("type_", "type"),
+        ],
         about: "List of subcomponent types that are available to configure for a particular parent component.",
         long_about: "",
         positionals: &[
@@ -80,6 +105,10 @@ pub const COMMANDS: &[CommandSpec] = &[
     },
     CommandSpec {
         words: &["components", "update"],
+        method: "PUT",
+        path: "/admin/realms/{realm}/components/{id}",
+        query: &[
+        ],
         about: "",
         long_about: "",
         positionals: &[
