@@ -77,21 +77,60 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-# --- version ---------------------------------------------------------------
+# --- versions --------------------------------------------------------------
 
-# The single source of truth is the package version: same scheme as the
-# `keycloak` crate, so `keycloak-cli 26.8.100` wraps `keycloak 26.8.100`.
-version=$(
+# Two versions, one source of truth each:
+#
+# - the crate is the exact `keycloak` dependency pinned in Cargo.toml, and that is
+#   what gets downloaded, unpacked and generated from;
+# - the package version encodes the wrapped Keycloak version (`x.y.(z*100+v)`), so
+#   a fix release of this CLI (26.8.101) can be cut without a new keycloak crate.
+#
+# They must wrap the same Keycloak version, which is the invariant checked below.
+package_version=$(
     sed -n 's/^version = "\(.*\)"$/\1/p' "$repo_root/Cargo.toml" | head -n 1
 )
-[ -n "$version" ] || die "cannot read the version from $repo_root/Cargo.toml"
-case $version in
-[0-9]*.[0-9]*.[0-9]*) ;;
-*) die "package version '$version' is not of the form x.y.z" ;;
-esac
-case $version in
-*[!0-9.]*) die "package version '$version' is not of the form x.y.z" ;;
-esac
+[ -n "$package_version" ] || die "cannot read the package version from $repo_root/Cargo.toml"
+crate_version=$(
+    sed -n 's/^keycloak = { version = "=\([^"]*\)".*/\1/p' "$repo_root/Cargo.toml" | head -n 1
+)
+[ -n "$crate_version" ] ||
+    die "cannot read the pinned keycloak crate version from Cargo.toml;
+      expected a dependency of the form: keycloak = { version = \"=x.y.z\", ... }"
+
+# "x.y.z" -> major minor patch, or an error.
+semver() {
+    case $1 in
+    [0-9]*.[0-9]*.[0-9]*) ;;
+    *) die "$2 '$1' is not of the form x.y.z" ;;
+    esac
+    case $1 in
+    *[!0-9.]*) die "$2 '$1' is not of the form x.y.z" ;;
+    esac
+    IFS=. read -r major minor patch <<<"$1"
+    [ -n "$major" ] && [ -n "$minor" ] && [ -n "$patch" ] || die "$2 '$1' is not of the form x.y.z"
+}
+
+semver "$package_version" "package version"
+package_major=$major
+package_minor=$minor
+package_patch=$patch
+semver "$crate_version" "keycloak crate version"
+crate_major=$major
+crate_minor=$minor
+crate_patch=$patch
+
+# The package wraps keycloak x.y.(z*100+v), so its Keycloak version is x.y.(patch/100);
+# `26.8.100` is Keycloak 26.8.1 with fix release 0, `26.8.101` the same Keycloak
+# with fix release 1.
+package_keycloak="$package_major.$package_minor.$((package_patch / 100))"
+crate_keycloak="$crate_major.$crate_minor.$((crate_patch / 100))"
+[ "$package_keycloak" = "$crate_keycloak" ] ||
+    die "package version $package_version wraps Keycloak $package_keycloak,
+      but the pinned keycloak crate $crate_version wraps $crate_keycloak"
+
+# Everything below works on the crate version: that is what the sources come from.
+version=$crate_version
 
 # --- crate tarball ---------------------------------------------------------
 

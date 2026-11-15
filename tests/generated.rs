@@ -9,12 +9,55 @@
 use keycloak_cli::generated::tags::{KEYCLOAK_CRATE_VERSION, TAGS, TAGS_CARGO};
 use keycloak_cli::version;
 
+/// The `keycloak` dependency line of this package's manifest.
+fn dependency_line() -> &'static str {
+    include_str!("../Cargo.toml")
+        .lines()
+        .find(|line| line.trim_start().starts_with("keycloak = "))
+        .expect("Cargo.toml depends on keycloak")
+}
+
+/// The exact crate version `Cargo.toml` pins, e.g. `26.8.100`.
+fn pinned_crate_version() -> String {
+    let line = dependency_line();
+    let start = line
+        .find("version = \"=")
+        .unwrap_or_else(|| panic!("the keycloak dependency is not pinned exactly: {line}"))
+        + "version = \"=".len();
+    let rest = &line[start..];
+    let end = rest
+        .find('"')
+        .unwrap_or_else(|| panic!("the version has no closing quote: {line}"));
+    rest[..end].to_owned()
+}
+
 #[test]
-fn generated_version_is_the_package_version() {
+fn generated_version_is_the_pinned_crate_version() {
+    // The sources come from the crate `Cargo.toml` pins, not from the package
+    // version: a fix release of this CLI does not move the wrapped crate.
     assert_eq!(
         KEYCLOAK_CRATE_VERSION,
+        pinned_crate_version(),
+        "run scripts/generate.sh after changing the pin"
+    );
+    assert!(
+        dependency_line().contains("default-features = false"),
+        "the crate is pulled in without its default features"
+    );
+}
+
+#[test]
+fn the_package_version_wraps_the_pinned_crate_version() {
+    // `x.y.(z*100+v)` wraps Keycloak `x.y.z`: the package version and the pinned
+    // crate must describe the same Keycloak, whatever their fix release.
+    let pinned =
+        version::Version::parse(&pinned_crate_version()).expect("the pin is of the form x.y.z");
+    assert_eq!(
+        version::crate_version().keycloak(),
+        pinned.keycloak(),
+        "package {} does not wrap the Keycloak version of the pinned crate {}",
         version::CRATE_VERSION,
-        "run scripts/generate.sh after bumping the version"
+        pinned
     );
 }
 

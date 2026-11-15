@@ -28,7 +28,7 @@ keycloak-cli info
 ```
 
 ```
-version   26.8.100 (wraps Keycloak Admin REST API 26.8.1)
+version   26.8.101 (wraps Keycloak Admin REST API 26.8.1)
 server    https://keycloak.example.com
 realm     master
 user      admin
@@ -173,22 +173,23 @@ failing the report, and `--fields` is for listings, not for reports.
 | 3 | Keycloak rejected the credentials (401/403) |
 | 4 | the resource does not exist (404) |
 
-`keycloak-cli --version` prints `26.8.100 (Keycloak Admin REST API 26.8.1)`.
+`keycloak-cli --version` prints `26.8.101 (Keycloak Admin REST API 26.8.1)`.
 
 ## Version scheme
 
 The version follows the Keycloak version it wraps, exactly like the `keycloak`
 crate: a crate version `x.y.(z * 100 + v)` targets Keycloak `x.y.z` with the fix
-release `v`. `26.8.100` is Keycloak `26.8.1`, `26.7.301` would be the second fix
-release for Keycloak `26.7.3`. The mapping is derived from `CARGO_PKG_VERSION`
+release `v`. `26.8.101` is Keycloak `26.8.1` with fix release 1, `26.7.301` would
+be the second fix release for Keycloak `26.7.3`. A fix release of the CLI does not
+move the wrapped crate: the `keycloak` dependency stays pinned to `26.8.100`. The mapping is derived from `CARGO_PKG_VERSION`
 (see `src/version.rs`), so a version bump is enough to follow a new Keycloak
 release.
 
 ## Generated sources
 
-The command tree is generated, not hand-written. `scripts/generate.sh`
-downloads the `.crate` tarball of the exact version this package wraps (its own
-package version) and unpacks it; the tarball carries the OpenAPI description
+The command tree is generated, not hand-written. `scripts/generate.sh` downloads
+the `.crate` tarball of the exact `keycloak` crate pinned in `Cargo.toml`
+(`keycloak = { version = "=…" }`) and unpacks it; the tarball carries the OpenAPI description
 (`api/openapi.json`), the crate's own generator (which prints the `tag-*`
 features) and the generated REST methods. `src/generate/` then emits one module
 per tag from the description, and every command it emits calls the crate method
@@ -210,9 +211,9 @@ The output carries no timestamps and is formatted with the toolchain pinned in
 `rust-toolchain.toml`, so `--check` is a byte-for-byte comparison and works as a
 CI drift guard. Downloads and builds are cached in
 `${XDG_CACHE_HOME:-~/.cache}/keycloak-cli/generate` (`--refresh` discards the
-cache, `--crate FILE` uses a local tarball). The version inside the tarball is
-asserted against the package version, so a version bump without a matching
-release fails instead of silently generating a different API.
+cache, `--crate FILE` uses a local tarball). The tarball's version is asserted
+against the pin, and the pin's Keycloak version against the package version's, so
+neither can drift silently.
 
 ## Roadmap
 

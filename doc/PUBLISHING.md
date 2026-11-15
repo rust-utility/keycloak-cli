@@ -34,25 +34,27 @@ builds against.
 ```sh
 # 1. bump Cargo.toml to the new version and update the lock file
 cargo build
-git commit -am "Release v26.8.100"
+git commit -am "Release v26.8.101"
 git push
 
 # 2. tag and push the tag: this triggers publish.yml
-git tag -a v26.8.100 -m "keycloak-cli 26.8.100 (Keycloak Admin REST API 26.8.1)"
-git push origin v26.8.100
+git tag -a v26.8.101 -m "keycloak-cli 26.8.101 (Keycloak Admin REST API 26.8.1)"
+git push origin v26.8.101
 
 # 3. a GitHub release with notes
-gh release create v26.8.100 --title "keycloak-cli 26.8.100" --notes-file notes.md
+gh release create v26.8.101 --title "keycloak-cli 26.8.101" --notes-file notes.md
 ```
 
 Dry run without uploading (`Packaged` but no `Uploading`):
 
 ```sh
-gh workflow run publish --ref v26.8.100 -f dry_run=true
+gh workflow run publish --ref v26.8.101 -f dry_run=true
 ```
 
 The workflow pins the wrapped crate: the dependency is `keycloak = "=26.8.100"`, so
-a tag can only build against the release the sources were generated from.
+a tag can only build against the release the sources were generated from. A *fix
+release* of the CLI (`26.8.101`) bumps only the package version — the pin, and
+therefore the generated sources, stay where they are.
 
 ## Verifying a release
 

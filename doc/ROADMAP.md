@@ -89,8 +89,8 @@ crate exposes it.
       realm between servers, find users without MFA)
 - [ ] GitHub release artefacts (linux/macos, static where possible) next to
       `cargo install` and (maybe) Homebrew
-- [x] crates.io trusted publishing — `keycloak-cli` 26.8.100 is published from the
-      `publish` workflow with OIDC (see `doc/PUBLISHING.md`)
+- [x] crates.io trusted publishing — `keycloak-cli` is published from the `publish`
+      workflow with OIDC (see `doc/PUBLISHING.md`; 26.8.100 and 26.8.101 so far)
 
 ## Non-goals
 

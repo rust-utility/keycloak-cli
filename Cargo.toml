@@ -1,6 +1,6 @@
 [package]
 name = "keycloak-cli"
-version = "26.8.100"
+version = "26.8.101"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
 edition = "2021"
 rust-version = "1.88"
