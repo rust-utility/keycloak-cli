@@ -1,2 +1,6 @@
 /target
 **/*.rs.bk
+
+# Loop bookkeeping, not part of the crate.
+doc/.rounds-state.plan.json
+doc/rounds-history.plan.jsonl
