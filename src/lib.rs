@@ -24,6 +24,7 @@ pub mod config;
 pub mod error;
 pub mod generate;
 pub mod generated;
+pub mod live;
 pub mod session;
 pub mod version;
 

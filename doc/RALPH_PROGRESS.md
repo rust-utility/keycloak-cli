@@ -324,6 +324,28 @@ the stored token instead of the password.**
 - `cargo fmt --check`, `cargo clippy --all-targets -D warnings`,
   `scripts/generate.sh --check` clean.
 
+### Started in the same round: Q7 (the bounded registry)
+
+`src/live.rs` holds the part of live completion that has nothing to do with
+Keycloak, so it can be tested without a server:
+
+- `Source` trait (`fn values(&self) -> Result<Vec<String>, Error>`) and `Registry`,
+  which maps a parameter name (`client_uuid`, `realm`, …) to a source;
+- a per-parameter TTL cache (one process per TAB, so the cache makes a second TAB
+  within the TTL cheap), a hard timeout on a worker thread so a stuck source cannot
+  hang the shell, case-insensitive prefix filtering, a 100-candidate cap, silent
+  failure (error, timeout and unknown parameter all yield an empty list) and the
+  `KEYCLOAK_CLI_NO_LIVE_COMPLETION` kill switch;
+- 7 unit tests with a fake source that counts calls, sleeps or fails: filtering,
+  cache hit (one fetch for two TABs), zero TTL (two fetches), a 500 ms source cut
+  off by a 50 ms timeout without being cached, silent failure, the cap and the kill
+  switch (which never fetches).
+
+Still to do for Q7: the API-backed sources and attaching `ArgValueCompleter`s to the
+generated arguments (which is also what M4 and M5 need). Verified: 91 tests green,
+`clippy -D warnings`, `fmt --check`, `generate.sh --check`.
+
+
 ### Notes for the next round (Q7 — live completion)
 
 - The session is the value source for completers: `session::lookup()` gives the
