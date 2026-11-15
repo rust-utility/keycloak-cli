@@ -188,6 +188,23 @@ from_all=$(
 [ "$from_all" = "$(cat "$work_dir/tags-lines.txt")" ] ||
     die "the tags-all list and the tag features disagree; generator output is inconsistent"
 
+# --- command names ---------------------------------------------------------
+
+# Before anything is emitted, the naming rules must cover every operation of the
+# pinned description: one command per operation, with unique command words. A
+# spec change that breaks the rules shows up here instead of producing a tree
+# that clap cannot build (or worse, one that silently drops an operation).
+(
+    cd "$repo_root" &&
+        cargo run --locked --quiet --bin keycloak-cli-generate -- \
+            --spec "$src_dir/api/openapi.json" names
+) >"$work_dir/commands.txt" 2>"$work_dir/commands.log" ||
+    {
+        cat "$work_dir/commands.log" >&2
+        die "the naming rules do not cover every operation of keycloak $version"
+    }
+cat "$work_dir/commands.log" >&2
+
 # --- emit the Rust sources -------------------------------------------------
 
 stage=$work_dir/generated

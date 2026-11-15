@@ -85,3 +85,73 @@ a version-equality assertion (F4). **Done, plus the drift check wired into CI.**
   `kilork/keycloak`'s `examples/openapi.rs` with unit tests over the *whole* spec
   (uniqueness assertion for all 415 operations), then the `cli` emitting
   subcommand for the `clients` tag.
+
+## Round 2 — Q2 (first chunk): naming and collision rules
+
+Goal: naming/collision rules plus unit tests for `/admin/realms` vs
+`/admin/realms/{realm}` (F6, F7). **Done, and the rules are validated against all
+415 operations of the pinned spec.**
+
+### Decision (asked and confirmed)
+
+The generator **lives in `keycloak-cli`**, not in `kilork/keycloak`: the newest
+published `keycloak` crate is exactly the pinned `26.8.100` (crates.io
+`newest_version`), so a `cli` subcommand added to the checkout could not be used
+by `scripts/generate.sh` until a new crate release exists, and M1 requires the
+committed sources to be reproducible from a *published* crate (F28). The script
+therefore feeds our generator with `api/openapi.json` from the unpacked tarball.
+
+Path parameters: **`{realm}` binds to the existing global `-r/--realm`**; every
+deeper path parameter is a positional in path order (F27, F29).
+
+### What exists now
+
+- `src/generate/naming.rs` — the rules, documented in the module header:
+  group = first literal segment after the realm, literals are words,
+  `{realm}` is never a positional, action = method × target, where a target is
+  single when the path ends with a parameter **or** its last literal does not end
+  with `s` (so `…/client-secret` gets `get`, `…/clients` gets `list`), and
+  `make_unique` spells the parameters of ambiguous groups as words
+  (`localization locale key get`) until every command path is unique, reporting
+  the operations instead of renaming silently when it cannot. Also
+  `ParamName` (kebab + snake spellings) and `ParamName::flag`, which prefixes a
+  flag that would shadow a global one with `param-` (`--param-user` on events).
+- `src/generate/spec.rs` — the OpenAPI subset the generator needs (paths, five
+  methods, tags, parameters with path/query location, request bodies), path-level
+  parameters merged into operation-level ones in place, deterministic operation
+  order; 3 unit tests.
+- `src/bin/keycloak-cli-generate.rs` — internal generator; `names` derives a
+  command per operation, makes the names unique and prints `usage ← method path`.
+- `scripts/generate.sh` now runs that `names` step against the unpacked crate
+  before emitting: a spec the rules cannot cover fails generation.
+- `Cargo.toml`: `heck`, `serde`, `serde_json` added (Cargo.lock updated).
+
+### Verified
+
+- `cargo test --all`: **25 tests** green (22 unit + 3 integration, up from 11).
+- `cargo run --bin keycloak-cli-generate -- --spec <crate>/api/openapi.json names`
+  → `415 operations, 415 commands in 36 groups, 13 spelled with their
+  parameters`, exit 0; the tree contains `realms list|create` (from
+  `GET|POST /admin/realms`) and `realms get|update|delete` (from
+  `/admin/realms/{realm}`) with no positional, `clients list|create`,
+  `clients get <client-uuid>`, `clients client-secret get <client-uuid>`,
+  `clients roles composites list <client-uuid> <role-name>`.
+- `cargo fmt --all -- --check` and `cargo clippy --all-targets -D warnings` clean.
+- `scripts/generate.sh --check` → naming step + "up to date with keycloak
+  26.8.100", exit 0.
+
+### Known nit / next steps
+
+- Shaping is applied per collision group only, so one sub-path can be spelled two
+  ways: `localization create <locale>` next to `localization locale get
+  <locale>`. Acceptable for a generated tree; revisit with curated aliases later.
+- Next (rest of Q2): emit the `clients` module — query flags with types from the
+  parameter schemas, positional value names/help from the descriptions,
+  `--body <file|->` from `requestBody`, and the dispatch expression to the
+  `keycloak` crate method; then add `keycloak` with `default-features = false,
+  features = ["reqwest"]` plus `tag-clients`, and compare with the method names
+  the crate actually exposes (`docs.rs/keycloak` / the unpacked
+  `src/rest/generated_rest/*.rs`).
+
+## Loop log
+- round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…

@@ -16,6 +16,7 @@
 pub mod cli;
 pub mod config;
 pub mod error;
+pub mod generate;
 pub mod generated;
 pub mod version;
 

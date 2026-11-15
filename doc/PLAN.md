@@ -7,9 +7,11 @@ suggests live realms/users/groups/clients from the session logged in earlier in 
 render as json/yaml/table/markdown/html with ASCII charts. Out of scope: implementing the Admin REST API, an
 interactive TUI dashboard, full `kcadm.sh` flag parity, non-admin APIs, and crate publishing/release automation.
 
-This plan lives in `rust-utility/keycloak-cli`. Repo-relative paths in `## Research` (`src/`, `examples/`,
-`api/`, `Cargo.toml`, `.github/`) refer to the `kilork/keycloak` checkout at `../../kilork/keycloak`, which is
-where the generator work of Q2/Q3 happens.
+This plan lives in `rust-utility/keycloak-cli`. The `kilork/keycloak` checkout at `../../kilork/keycloak` stays the reference for the
+crate's own code and method shapes, but the command-tree generator lives in `src/generate/` here: the newest
+published `keycloak` crate is exactly the pinned `26.8.100`, so a generator subcommand added upstream could not
+be used by `scripts/generate.sh` until a new release exists, while the script must reproduce the committed
+sources from a published crate (F28).
 
 ## Research
 
@@ -40,6 +42,8 @@ where the generator work of Q2/Q3 happens.
 - F25: the wrapped crate pins 1.88 (`rust-version`, CI `dtolnay/rust-toolchain@1.88.0`) -- `Cargo.toml`, `.github/workflows/integration.yml` -- the CLI and its dependencies must stay ≤ 1.88 (see F20's comrak exception).
 - F26: report data exists without extra APIs: `/admin/realms/{realm}/events`, `/users/count`, `/client-session-stats`, `/groups` -- `api/openapi.json` -- the charts/report milestone can use real endpoints.
 - F27: the pinned spec has 274 paths and 415 operations; 272 paths start with `/admin/realms/{realm}` and the only exceptions are `GET /admin/realms` and `POST /admin/realms`, so command names come from the tail after that prefix, and the realm is better bound to the existing global `-r/--realm` than to a positional -- `python3` over `api/openapi.json` in `keycloak-26.8.100.crate` (round 1).
+- F28: `keycloak` 26.8.100 is the newest published crate, so generator code added to the `kilork/keycloak` checkout cannot be used by `scripts/generate.sh` until a release is cut -- the CLI must own the emitter and read `api/openapi.json` from the unpacked tarball; `crates.io/api/v1/crates/keycloak` `newest_version` plus `CARGO_PKG_VERSION` (round 2).
+- F29: the naming rules (group = first literal segment, verb + collection/singular target = action, `{realm}` bound to the global flag) give exactly 415 unique commands in 36 groups; only 6 word-sequences are shared by different arities (`localization get`, `clients authz resource-server resource get`, `organizations members organizations list`, …), and spelling the parameters of those 13 operations as words makes the tree unambiguous -- `cargo run --bin keycloak-cli-generate -- names` over the pinned spec (round 2).
 
 ## Milestones
 
@@ -56,8 +60,8 @@ where the generator work of Q2/Q3 happens.
 ## Round plan
 
 - [x] Q1 (high impact, low effort) — `scripts/generate.sh` downloads `keycloak-<version>.crate`, unpacks it to a temp dir and runs the generator, starting with `tags cargo` into `src/generated/tags.rs`; version equality is asserted (F4)
-- [ ] Q2 (high impact, high effort) — generator `cli` subcommand emits clap modules for one tag (`clients`): names from path+verb, path params as positionals, query params as flags, body as `--body <file|->`
-  - [ ] naming and collision rules plus unit tests for `/admin/realms` vs `/admin/realms/{realm}` (F6, F7)
+- [ ] Q2 (high impact, high effort) — `keycloak-cli-generate` (fed by `api/openapi.json` from the pinned crate) emits clap modules for one tag (`clients`): names from path+verb, path params as positionals, query params as flags, body as `--body <file|->`
+  - [x] naming and collision rules plus unit tests for `/admin/realms` vs `/admin/realms/{realm}` (F6, F7) — `src/generate/naming.rs` + `src/generate/spec.rs`, 12 unit tests, and the `names` self-check over all 415 operations (F29)
   - [ ] emitted `clients` module compiles in keycloak-cli after adding `keycloak` with `default-features = false, features = ["reqwest"]` and a `tag-clients` feature
 - [ ] Q3 (high impact, medium effort) — all remaining tags emitted behind `#[cfg(feature = "tag-…")]` with `tag-none`, and CLI features mirroring `tags cargo` (F3, F25)
   - [ ] emit the remaining tag modules and the `tag-none` bucket, feature block generated from `tags cargo`
@@ -78,5 +82,6 @@ where the generator work of Q2/Q3 happens.
 
 ## Checks
 
-- `cargo test --all` (this repository; 8 tests, green today)
-- `cd ../../kilork/keycloak && cargo test --lib` (the generator's crate, touched by Q2/Q3; 1 test, green today)
+- cargo test --all
+- ./scripts/generate.sh --check
+- cd ../../kilork/keycloak && cargo test --lib
