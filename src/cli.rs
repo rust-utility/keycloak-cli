@@ -1,27 +1,95 @@
 //! Command line shape.
 //!
-//! Only the connection flags and a single `info` command exist so far; the
-//! resource commands listed in `doc/ROADMAP.md` are added on top of this tree.
+//! The parser is assembled at runtime: the connection flags and `info` belong to
+//! this crate, everything else is `crate::generated`, which the generator emits
+//! from the pinned Admin REST API description. Building the tree instead of
+//! deriving it is what makes the generated commands appear in `--help` and lets
+//! completion (Q5) use the same tree as parsing.
 
-use clap::{Args, Parser, Subcommand};
+use std::ffi::OsString;
+
+use clap::{ArgMatches, Args, Command, FromArgMatches};
 
 use crate::version;
 
 /// Command line interface for the Keycloak Admin REST API.
-#[derive(Debug, Parser)]
-#[command(
-    name = "keycloak-cli",
-    about = "Command-line interface for the Keycloak Admin REST API",
-    version = version::version_string(),
-    propagate_version = true
-)]
+#[derive(Debug)]
 pub struct Cli {
     /// Connection settings, shared by every command.
-    #[command(flatten)]
     pub connection: ConnectionArgs,
+    /// The command that was asked for, when one was.
+    pub command: Option<Invocation>,
+}
 
-    #[command(subcommand)]
-    pub command: Option<Command>,
+impl Cli {
+    /// Parses the process arguments, exiting with clap's usage error handling.
+    pub fn parse() -> Self {
+        Self::parse_from(std::env::args_os())
+    }
+
+    /// Parses `args`, the program name first, exiting on a usage error.
+    pub fn parse_from<I, T>(args: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        match Self::try_parse_from(args) {
+            Ok(cli) => cli,
+            Err(error) => error.exit(),
+        }
+    }
+
+    /// Parses `args`, the program name first.
+    pub fn try_parse_from<I, T>(args: I) -> Result<Self, clap::Error>
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<OsString> + Clone,
+    {
+        let matches = build_cli().try_get_matches_from(args)?;
+        Self::from_matches(&matches)
+    }
+
+    /// Reads a parsed tree.
+    pub fn from_matches(matches: &ArgMatches) -> Result<Self, clap::Error> {
+        let connection = ConnectionArgs::from_arg_matches(matches)?;
+        let (words, args) = innermost(matches);
+        Ok(Self {
+            connection,
+            command: (!words.is_empty()).then_some(Invocation { words, args }),
+        })
+    }
+}
+
+/// The command that was asked for, as clap leaves it.
+#[derive(Debug)]
+pub struct Invocation {
+    /// The words that were typed, e.g. `["clients", "list"]`.
+    pub words: Vec<String>,
+    /// The matches of the innermost command, which is where its arguments are.
+    pub args: ArgMatches,
+}
+
+impl Invocation {
+    /// The words as `&str`, which is what the generated dispatchers take.
+    pub fn words(&self) -> Vec<&str> {
+        self.words.iter().map(String::as_str).collect()
+    }
+}
+
+/// Builds the whole command tree: the CLI's own commands and connection flags,
+/// plus every generated command of the enabled tags.
+pub fn build_cli() -> Command {
+    let command = Command::new("keycloak-cli")
+        .version(version::version_string())
+        .about("Command-line interface for the Keycloak Admin REST API")
+        .subcommand(
+            Command::new("info")
+                .about("Show the effective connection configuration (secrets redacted)."),
+        );
+    let command = ConnectionArgs::augment_args(command);
+    crate::generated::commands()
+        .into_iter()
+        .fold(command, |command, generated| command.subcommand(generated))
 }
 
 /// Where and how to reach Keycloak.
@@ -75,8 +143,69 @@ pub struct ConnectionArgs {
     pub password: Option<String>,
 }
 
-#[derive(Debug, Subcommand)]
-pub enum Command {
-    /// Show the effective connection configuration (secrets redacted).
-    Info,
+/// Follows the subcommands down to the innermost one.
+fn innermost(matches: &ArgMatches) -> (Vec<String>, ArgMatches) {
+    let mut words = Vec::new();
+    let mut current = matches;
+    let mut deepest = matches.clone();
+    while let Some((name, subcommand)) = current.subcommand() {
+        words.push(name.to_owned());
+        deepest = subcommand.clone();
+        current = subcommand;
+    }
+    (words, deepest)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_tree_is_valid() {
+        // clap's own assertions: duplicate flags, conflicting names, bad nesting.
+        build_cli().debug_assert();
+    }
+
+    #[test]
+    fn generated_commands_are_in_the_help() {
+        let mut help = Vec::new();
+        build_cli().write_help(&mut help).expect("help renders");
+        let help = String::from_utf8(help).expect("help is utf-8");
+        // The CLI's own command and the generated groups.
+        assert!(help.contains("info"), "{help}");
+        assert!(help.contains("clients"), "{help}");
+        assert!(help.contains("users"), "{help}");
+        assert!(help.contains("realms"), "{help}");
+    }
+
+    #[test]
+    fn parses_a_generated_command_into_words() {
+        let cli = Cli::try_parse_from(["keycloak-cli", "-r", "prod", "clients", "list"])
+            .expect("the command line parses");
+        assert_eq!(cli.connection.realm, "prod");
+        let invocation = cli.command.expect("a command was given");
+        assert_eq!(invocation.words, ["clients", "list"]);
+        assert_eq!(invocation.words(), ["clients", "list"]);
+        assert_eq!(
+            crate::command::integer(&invocation.args, "first"),
+            None,
+            "the innermost matches carry the command's own arguments"
+        );
+    }
+
+    #[test]
+    fn parses_the_built_in_command_and_no_command() {
+        let info = Cli::try_parse_from(["keycloak-cli", "info"]).expect("info parses");
+        assert_eq!(info.command.expect("info is a command").words, ["info"]);
+
+        let none = Cli::try_parse_from(["keycloak-cli"]).expect("no command parses");
+        assert!(none.command.is_none());
+    }
+
+    #[test]
+    fn rejects_unknown_commands() {
+        let error = Cli::try_parse_from(["keycloak-cli", "clients", "nonsense"])
+            .expect_err("nonsense is not a command");
+        assert_eq!(error.kind(), clap::error::ErrorKind::InvalidSubcommand);
+    }
 }

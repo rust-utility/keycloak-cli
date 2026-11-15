@@ -1,7 +1,5 @@
 use std::process::ExitCode;
 
-use clap::Parser;
-
 use keycloak_cli::Cli;
 
 fn main() -> ExitCode {
@@ -9,7 +7,7 @@ fn main() -> ExitCode {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("error: {error}");
-            ExitCode::FAILURE
+            ExitCode::from(error.exit_code())
         }
     }
 }

@@ -29,6 +29,19 @@ jobs:
       - name: Generated sources are up to date
         run: scripts/generate.sh --check
 
+      # A tag-limited build must compile and ship only that tag's commands (M2).
+      - name: One tag builds and lists only its commands
+        run: |
+          cargo build --no-default-features --features tag-users
+          help=$(./target/debug/keycloak-cli --help)
+          case $help in
+            *users*) ;;
+            *) echo "the users group is missing from --help"; exit 1 ;;
+          esac
+          case $help in
+            *clients*) echo "clients must not be in a tag-users build"; exit 1 ;;
+          esac
+
       - name: Build release
         run: cargo build --release
 

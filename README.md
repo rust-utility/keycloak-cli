@@ -3,9 +3,10 @@
 Command-line interface for the [Keycloak](https://www.keycloak.org) Admin REST
 API, built on the [`keycloak`](https://crates.io/crates/keycloak) crate.
 
-> **Status: skeleton.** The repository was just created: the command line shape,
-> the connection configuration and the version scheme exist, API calls do not.
-> See [`doc/ROADMAP.md`](doc/ROADMAP.md) for the planned scope.
+> **Status: generated command tree.** Every operation of the pinned `keycloak`
+> crate is a command (415 of them, 36 groups), and each one calls its crate method.
+> Shell completion, the output layer and reports are still ahead: see
+> [`doc/ROADMAP.md`](doc/ROADMAP.md).
 
 ## Install
 
@@ -33,6 +34,35 @@ realm     master
 user      admin
 password  set (hidden)
 ```
+
+Every operation of the API is a command, named after its path and method:
+
+```sh
+keycloak-cli clients list --first 10
+keycloak-cli clients get 8a1b…            # client uuid
+keycloak-cli clients create --body client.json
+keycloak-cli users list --search alice --max 5
+keycloak-cli -r other users count
+```
+
+Realm-level commands take the realm from `-r/--realm` (or `KEYCLOAK_REALM`); deeper
+path parameters are positionals in path order, query parameters are flags, and
+`--body` takes a JSON file or `-` for standard input. Responses are printed as
+JSON on stdout, so they compose with `jq`:
+
+```sh
+keycloak-cli clients list | jq '.[].clientId'
+```
+
+## Exit codes
+
+| code | meaning |
+|------|---------|
+| 0 | success |
+| 1 | the request or the environment failed |
+| 2 | the command line cannot be satisfied (missing `--body`, unknown flag) |
+| 3 | Keycloak rejected the credentials (401/403) |
+| 4 | the resource does not exist (404) |
 
 `keycloak-cli --version` prints `26.8.100 (Keycloak Admin REST API 26.8.1)`.
 

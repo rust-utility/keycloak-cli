@@ -25,6 +25,24 @@ impl Error {
     pub fn usage(message: impl Into<String>) -> Self {
         Error::Usage(message.into())
     }
+
+    /// The exit code for this failure.
+    ///
+    /// `0` is success, `1` a failure of the request or the environment, `2` a
+    /// command line the CLI cannot satisfy, `3` a rejected credential and `4` a
+    /// resource the server does not have, so a script can tell "you asked wrong"
+    /// from "the server said no" from "the server is down".
+    pub fn exit_code(&self) -> u8 {
+        match self {
+            Error::Usage(_) => 2,
+            Error::Api(keycloak::KeycloakError::HttpFailure { status, .. }) => match status {
+                401 | 403 => 3,
+                404 => 4,
+                _ => 1,
+            },
+            Error::Io(_) | Error::Json(_) | Error::Api(_) => 1,
+        }
+    }
 }
 
 impl fmt::Display for Error {
@@ -83,6 +101,26 @@ mod tests {
         let error = Error::from(std::io::Error::new(std::io::ErrorKind::NotFound, "gone"));
         assert!(error.to_string().contains("gone"));
         assert!(error.source().is_some());
+    }
+
+    #[test]
+    fn exit_codes_separate_usage_from_failure() {
+        assert_eq!(Error::usage("x").exit_code(), 2);
+        let http = |status| {
+            Error::Api(keycloak::KeycloakError::HttpFailure {
+                status,
+                body: None,
+                text: String::new(),
+            })
+        };
+        assert_eq!(http(401).exit_code(), 3);
+        assert_eq!(http(403).exit_code(), 3);
+        assert_eq!(http(404).exit_code(), 4);
+        assert_eq!(http(500).exit_code(), 1);
+        assert_eq!(
+            Error::from(std::io::Error::new(std::io::ErrorKind::NotFound, "gone")).exit_code(),
+            1
+        );
     }
 
     #[test]

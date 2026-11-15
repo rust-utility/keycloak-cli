@@ -253,6 +253,65 @@ type error in a generated module proved the modules are really compiled.
   is mostly plumbing. Generated `DefaultResponse` operations currently return
   `Value::Null`; the output layer (Q8) can decide what to print for them.
 
+## Round 4 — Q4: generated commands call the API
+
+Goal: runtime plus `KeycloakAdmin` construction from config, one generated command
+asserted against a loopback HTTP stub. **Done, together with the exit-code mapping
+and the parser wiring that made M1 and M2 checkable.**
+
+### What exists now
+
+- `src/cli.rs` — the tree is assembled at runtime instead of derived:
+  `build_cli()` = `ConnectionArgs::augment_args` + `info` + `generated::commands()`;
+  `Cli::{parse,try_parse_from,from_matches}` read the connection flags and the
+  innermost `Invocation { words, args }` (`info` and "no command" stay the CLI's
+  own). This is the `build_cli()` Q5 wanted for completion, and it is why `--help`
+  now lists what a build ships.
+- `src/client.rs` — `execute(config, invocation)`: current-thread tokio runtime
+  (`rt`,`net`,`time`) → `connect` (`KeycloakAdminToken::acquire` with the existing
+  flags, a missing password is a usage error) → `generated::dispatch` →
+  `serde_json::Value`. Non-null values are printed as pretty JSON (Q8 replaces
+  this with `--output`).
+- `Error::exit_code()`: 0 success, 1 failure, 2 usage, 3 for 401/403, 4 for 404;
+  `main` prints the error to stderr and exits with it.
+- `Cargo.toml`: `tokio` (rt/net/time), `default-run = "keycloak-cli"` (two binaries
+  now exist).
+- `tests/loopback.rs` — a stdlib `TcpListener` stub that records requests and
+  answers in order (token, then API): GET with query, positional in path, `--body`
+  from a file as POST JSON, 404 → exit 4, rejected token → exit 3.
+- `src/cli.rs` tests: `build_cli().debug_assert()`, help contains the groups, a
+  generated command parses into words, unknown subcommands are rejected.
+- CI: a `tag-users` build step that asserts `--help` lists `users` and not
+  `clients` (M2), and the PLAN's checks gained
+  `cargo build --no-default-features --features tag-users`.
+
+### Verified
+
+- `cargo test --all`: **60 tests** (42 unit + 9 commands + 4 generated + 5
+  loopback), all green; the loopback test asserts the exact request lines, e.g.
+  `GET /admin/realms/master/clients?first=5&search=true` with
+  `authorization: bearer stub-token`, and that absent flags are not sent.
+- `keycloak-cli --help` lists 36 groups; `keycloak-cli clients --help` lists its
+  subcommands (including the shaped `client-uuid` subtree); `--no-default-features
+  --features tag-users --help` lists only `users` (M2).
+- `cargo fmt --check`, `cargo clippy --all-targets -D warnings` (default and
+  `tag-users`), `scripts/generate.sh --check`, `cargo package --locked` all clean.
+
+### Notes for the next round (Q5/Q6/Q7 — completion and sessions)
+
+- `build_cli()` is the single tree for parsing *and* completion: Q5 wraps it in
+  `CompleteEnv::with_factory(build_cli).complete()` behind `clap_complete`'s
+  `unstable-dynamic` feature and adds `init bash|zsh|fish` (F8, F10, F13).
+- The dispatch signature `generated::dispatch(admin, realm, words, args)` is where a
+  session (Q6) can replace the token source: `KeycloakAdmin<TS>` is already generic
+  over `KeycloakTokenSupplier`, so a session token supplier slots in without
+  touching generated code (F11, F14).
+- `src/command.rs` already exposes the arg ids (`client_uuid`, `realm`, …) that a
+  completion registry needs to map parameters to live value sources (Q7, F12/F15).
+- Output is still raw pretty JSON; Q8 adds `--output json|yaml|table|markdown|html`.
+
+
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
 - round 2 · Q2 · 32 turns · continue → continue · naming and collision rules for the generated tree, with u…
+- round 3 · Q2 · 73 turns · continue → continue · emitted clients module compiles against the real crate — …

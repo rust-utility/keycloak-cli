@@ -482,6 +482,7 @@ dependencies = [
  "keycloak",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
