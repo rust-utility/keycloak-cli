@@ -39,6 +39,7 @@ where the generator work of Q2/Q3 happens.
 - F24: keycloak-cli today is a skeleton: `info`, 8 unit tests, CI green, 26.8.100↔Keycloak 26.8.1, no `keycloak` dependency -- `rust-utility/keycloak-cli@e2ccedd`, run 43735829127 -- M0 is done; every other milestone starts from a compiling crate.
 - F25: the wrapped crate pins 1.88 (`rust-version`, CI `dtolnay/rust-toolchain@1.88.0`) -- `Cargo.toml`, `.github/workflows/integration.yml` -- the CLI and its dependencies must stay ≤ 1.88 (see F20's comrak exception).
 - F26: report data exists without extra APIs: `/admin/realms/{realm}/events`, `/users/count`, `/client-session-stats`, `/groups` -- `api/openapi.json` -- the charts/report milestone can use real endpoints.
+- F27: the pinned spec has 274 paths and 415 operations; 272 paths start with `/admin/realms/{realm}` and the only exceptions are `GET /admin/realms` and `POST /admin/realms`, so command names come from the tail after that prefix, and the realm is better bound to the existing global `-r/--realm` than to a positional -- `python3` over `api/openapi.json` in `keycloak-26.8.100.crate` (round 1).
 
 ## Milestones
 
@@ -60,7 +61,7 @@ where the generator work of Q2/Q3 happens.
   - [ ] emitted `clients` module compiles in keycloak-cli after adding `keycloak` with `default-features = false, features = ["reqwest"]` and a `tag-clients` feature
 - [ ] Q3 (high impact, medium effort) — all remaining tags emitted behind `#[cfg(feature = "tag-…")]` with `tag-none`, and CLI features mirroring `tags cargo` (F3, F25)
   - [ ] emit the remaining tag modules and the `tag-none` bucket, feature block generated from `tags cargo`
-  - [ ] CI drift job: `scripts/generate.sh` regenerates from the pinned crate and fails on diff (F4, F5)
+  - [x] CI drift job: `scripts/generate.sh` regenerates from the pinned crate and fails on diff (F4, F5) — wired in round 1 for the files the script emits today; `src/generated/tags.rs` is covered now and every module the script learns to emit is covered automatically
 - [ ] Q4 (high impact, medium effort) — generated commands call the API: token from the existing flag/env config, shared tokio runtime, per-command dispatch (a session login replaces the token source in Q6) (F14, F24)
   - [ ] runtime plus `KeycloakAdmin` construction from config; one generated command is asserted against a loopback HTTP stub (method, path, query), since the crate builds and sends requests internally with no render hook
   - [ ] dispatch and `KeycloakError` → exit-code mapping, tested with a stub token supplier

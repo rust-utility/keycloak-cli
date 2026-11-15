@@ -22,6 +22,13 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: Test
         run: cargo test --all
+
+      # The generated sources must come from the published crate, not from a
+      # checkout: this downloads the pinned keycloak release, unpacks it and runs
+      # its own generator, then fails on any byte of difference.
+      - name: Generated sources are up to date
+        run: scripts/generate.sh --check
+
       - name: Build release
         run: cargo build --release
 
