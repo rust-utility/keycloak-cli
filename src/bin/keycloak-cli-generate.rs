@@ -15,7 +15,9 @@ use std::process::ExitCode;
 
 use clap::{Parser, Subcommand};
 
+use keycloak_cli::generate::emit;
 use keycloak_cli::generate::naming::{self, CommandName};
+use keycloak_cli::generate::signature::CrateApi;
 use keycloak_cli::generate::spec::Spec;
 
 /// Generates the command tree of `keycloak-cli` from the Admin REST API description.
@@ -34,6 +36,21 @@ struct Cli {
 enum Command {
     /// Print the command of every operation, failing if two would collide.
     Names,
+    /// Write the generated command modules.
+    Emit {
+        /// The unpacked `keycloak` crate root, which has `src/rest/generated_rest`.
+        #[arg(long, value_name = "DIR")]
+        crate_dir: PathBuf,
+        /// Directory to write `mod.rs` and the tag modules into.
+        #[arg(long, value_name = "DIR")]
+        out: PathBuf,
+        /// Version of the crate the sources come from, for the file headers.
+        #[arg(long, value_name = "VERSION")]
+        version: String,
+        /// Tags to emit (kebab-case), every tag when empty.
+        #[arg(long, value_name = "TAG", value_delimiter = ',')]
+        tags: Vec<String>,
+    },
 }
 
 fn main() -> ExitCode {
@@ -57,9 +74,38 @@ fn run(cli: &Cli) -> Result<(), String> {
         )
     })?;
 
-    match cli.command {
+    match &cli.command {
         Command::Names => names(&spec),
+        Command::Emit {
+            crate_dir,
+            out,
+            version,
+            tags,
+        } => emit(&spec, crate_dir, out, version, tags),
     }
+}
+
+/// Emits the command modules of `tags` into `out`.
+fn emit(
+    spec: &Spec,
+    crate_dir: &std::path::Path,
+    out: &std::path::Path,
+    version: &str,
+    tags: &[String],
+) -> Result<(), String> {
+    let rest = crate_dir.join("src").join("rest").join("generated_rest");
+    let api = CrateApi::read(&rest).map_err(|error| error.to_string())?;
+    let generated = emit::generate(spec, &api, version, tags).map_err(|error| error.to_string())?;
+    generated.write(out).map_err(|error| error.to_string())?;
+    eprintln!(
+        "{} operations, {} commands ({} spelled with their parameters), {} crate methods, {} modules",
+        generated.operations,
+        generated.commands,
+        generated.shaped,
+        api.len(),
+        generated.modules.len()
+    );
+    Ok(())
 }
 
 /// Derives every command, makes the words unique and prints the tree.

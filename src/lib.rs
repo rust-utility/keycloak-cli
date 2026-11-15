@@ -14,6 +14,7 @@
 //! conversion, and `keycloak-cli --version` reports both.
 
 pub mod cli;
+pub mod command;
 pub mod config;
 pub mod error;
 pub mod generate;

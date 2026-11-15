@@ -15,8 +15,17 @@ repository = "https://github.com/rust-utility/keycloak-cli"
 # The pinned toolchain is for development here; it must not constrain consumers.
 exclude = ["rust-toolchain.toml"]
 
+[features]
+# Every tag of the keycloak crate this build ships; `tag-*` features enable the
+# operations generated for that tag and the matching feature of the crate.
+default = ["tag-clients"]
+tag-clients = ["keycloak/tag-clients"]
+
 [dependencies]
 clap = { version = "4", features = ["cargo", "derive", "env"] }
 heck = "0.5"
+# Pinned to the exact crate release the generated sources come from; the version
+# scheme of this package follows it (see doc/ROADMAP.md).
+keycloak = { version = "=26.8.100", default-features = false, features = ["reqwest"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

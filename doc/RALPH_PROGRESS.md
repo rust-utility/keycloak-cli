@@ -153,5 +153,74 @@ deeper path parameter is a positional in path order (F27, F29).
   the crate actually exposes (`docs.rs/keycloak` / the unpacked
   `src/rest/generated_rest/*.rs`).
 
+## Round 3 — Q2 (second chunk): the emitted `clients` module
+
+Goal: emitted `clients` module compiles in keycloak-cli after adding `keycloak`
+with `default-features = false, features = ["reqwest"]` and a `tag-clients`
+feature. **Done — and the emitter turned out to cover all 22 tags, so Q3 is now
+selection + features, not more codegen.**
+
+### What exists now
+
+- `src/generate/signature.rs` — reads `src/rest/generated_rest/*.rs` from the
+  unpacked crate (textual, no `syn`): method name, parameters with their Rust
+  types, and the `Result<T, KeycloakError>` payload. `method_name(path, method)`
+  is a port of the crate generator's rule (`/admin/realms` → `get`,
+  `{client-uuid}` → `with_client_uuid`, CamelCase verb, snake_case), including
+  the `type` → `type_` keyword suffix. 5 unit tests.
+- `src/generate/emit.rs` — emits one module per tag: `COMMANDS: &[CommandSpec]`
+  (words, about/long_about, positionals, flags with `ValueKind`, body,
+  deprecated), `owns(words)` and an `async fn dispatch` whose `match words`
+  calls the crate method with typed arguments (`&str` positionals bound first,
+  `Option<…>` read through helpers, body deserialised into the crate's own type).
+  `DefaultResponse` operations return `Value::Null`. It also emits `mod.rs`
+  (cfg-gated modules, `commands()`, `owns()`, `dispatch()`). It validates *every*
+  tag on every run — a description the rules cannot cover fails generation even
+  if that tag is not selected.
+- `src/command.rs` — the runtime: `CommandSpec`/`ParamSpec`/`ValueKind`, the
+  clap tree builder (nested, merged across tags), panic-free value readers
+  (`text`/`boolean`/`integer`/`texts`/`positional`), `--body FILE|-` reading, and
+  `to_json`. 5 unit tests.
+- `src/generated/tag_clients.rs` (committed, 35 commands) + regenerated
+  `src/generated/mod.rs`.
+- `Cargo.toml`: `keycloak = { version = "=26.8.100", default-features = false,
+  features = ["reqwest"] }`, `[features] default = ["tag-clients"]`,
+  `tag-clients = ["keycloak/tag-clients"]`.
+- `scripts/generate.sh` now runs `keycloak-cli-generate emit --crate-dir … --out …`
+  (tags from `KEYCLOAK_CLI_GENERATE_TAGS`, default `clients`), rustfmts every
+  staged file, and still compares byte-for-byte in `--check`.
+- `tests/commands.rs` (5 tests): all 35 commands are reachable in the clap tree,
+  words unique within the tag, flags/positionals carry the API names and help,
+  `clients create` has `--body`, and a real command line parses back into values.
+
+### Verified
+
+- `cargo run --bin keycloak-cli-generate -- --spec … emit --crate-dir …` →
+  `415 operations, 415 commands (13 spelled with their parameters), 415 crate
+  methods, 1 modules` — every operation of the pinned crate finds its method.
+- `cargo build` with the generated module: compiles (the dispatch calls
+  type-check against `keycloak` 26.8.100, incl. `ClientRepresentation` bodies and
+  `DefaultResponse` units).
+- `cargo build --no-default-features`: compiles with zero warnings (the
+  generated `dispatch` allows unused arguments when no tag is enabled).
+- `cargo test --all`: **43 tests** (35 unit + 5 commands + 3 generated).
+- `cargo fmt --all -- --check`, `cargo clippy --all-targets -D warnings` clean
+  (also on the generated code), `cargo package --locked` verifies.
+- `scripts/generate.sh --check` → up to date; two consecutive runs produce
+  identical hashes for every file in `src/generated/`.
+
+### Notes for the next round (Q3)
+
+- `tags_to_emit` in `scripts/generate.sh` is the only switch left: set it to every
+  tag of `tags.rs` (and generate the CLI's `[features]` block from `TAGS_CARGO`),
+  then `--no-default-features --features tag-users` is M2, and 380 more commands
+  appear with no new emitter code.
+- The CLI still parses with `#[derive(Command)]`; wiring `generated::commands()`
+  into the parser (plus `generated::dispatch` behind the runtime/token of Q4) is
+  what makes the tree visible in `--help`.
+- 11 deprecated operations live in other tags; their "deprecated" rendering is
+  covered only by the `command.rs` fixture until those tags are emitted.
+
 ## Loop log
 - round 1 · Q1 · 41 turns · continue → continue · scripts/generate.sh generates from the published keycloak…
+- round 2 · Q2 · 32 turns · continue → continue · naming and collision rules for the generated tree, with u…

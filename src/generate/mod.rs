@@ -15,8 +15,12 @@
 //! `scripts/generate.sh` until a new crate release exists, while the script has
 //! to reproduce the committed sources from a *published* crate.
 
+pub mod emit;
 pub mod naming;
+pub mod signature;
 pub mod spec;
 
+pub use emit::{EmitError, Generated, Module};
 pub use naming::{Action, CommandName, Method, ParamName};
+pub use signature::{CrateApi, CrateMethod, CrateParameter};
 pub use spec::{ApiOperation, Spec};

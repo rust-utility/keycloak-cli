@@ -47,15 +47,19 @@ release.
 
 ## Generated sources
 
-The command tree is generated, not hand-written. Both the OpenAPI description and
-the generator live in the [`keycloak`](https://crates.io/crates/keycloak) crate,
-so `scripts/generate.sh` downloads the `.crate` tarball of the exact version this
-package wraps (its own package version), unpacks it and runs the crate's own
-generator inside it:
+The command tree is generated, not hand-written. `scripts/generate.sh`
+downloads the `.crate` tarball of the exact version this package wraps (its own
+package version) and unpacks it; the tarball carries the OpenAPI description
+(`api/openapi.json`), the crate's own generator (which prints the `tag-*`
+features) and the generated REST methods. `src/generate/` then emits one module
+per tag from the description, and every command it emits calls the crate method
+whose name, parameters and types it reads from those sources — so the CLI cannot
+claim a command the crate does not have, or call one with the wrong shape:
 
 ```sh
 scripts/generate.sh          # regenerate src/generated/
 scripts/generate.sh --check  # fail if the committed sources are stale
+KEYCLOAK_CLI_GENERATE_TAGS=clients,users scripts/generate.sh  # pick the tags
 ```
 
 The output carries no timestamps and is formatted with the toolchain pinned in
