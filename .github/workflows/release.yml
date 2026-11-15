@@ -9,6 +9,11 @@ on:
         description: "Tag to build release binaries for"
         required: true
 
+# Only the Linux binaries are built here: GitHub never assigned runners to the
+# macOS jobs for this organisation (they are cancelled at creation without a
+# runner), so the Apple binaries and the SHA256SUMS covering every asset are
+# produced by `scripts/release-macos.sh` on a Mac. See doc/PUBLISHING.md.
+
 permissions:
   contents: write
 
@@ -19,11 +24,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - target: aarch64-apple-darwin
-            os: macos-14
-          # Cross-built on the arm64 runner: macos-13 is retired.
-          - target: x86_64-apple-darwin
-            os: macos-14
           - target: x86_64-unknown-linux-musl
             os: ubuntu-latest
           - target: aarch64-unknown-linux-musl
@@ -71,21 +71,3 @@ jobs:
           fi
           gh release upload "$tag" "keycloak-cli-${{ matrix.target }}" \
             --clobber --repo "$GITHUB_REPOSITORY"
-
-  checksums:
-    name: SHA256SUMS
-    needs: binaries
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Compute and attach the checksums
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          tag="${{ github.event.inputs.tag || github.ref_name }}"
-          mkdir -p assets
-          gh release download "$tag" --repo "$GITHUB_REPOSITORY" \
-            --pattern 'keycloak-cli-*' --dir assets
-          cd assets
-          sha256sum keycloak-cli-* | tee SHA256SUMS
-          gh release upload "$tag" SHA256SUMS --clobber --repo "$GITHUB_REPOSITORY"

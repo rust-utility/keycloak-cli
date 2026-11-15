@@ -58,17 +58,27 @@ therefore the generated sources, stay where they are.
 
 ## Release binaries
 
-A tag also runs `.github/workflows/release.yml`, which builds the CLI for
-`aarch64-apple-darwin`, `x86_64-apple-darwin`, `x86_64-unknown-linux-musl` and
-`aarch64-unknown-linux-musl`, attaches `keycloak-cli-<target>` for each to the
-release and adds a `SHA256SUMS` file. `install.sh` and `keycloak-cli self-update`
-consume exactly those assets, so a release is not complete until the workflow is
-green:
+A tag also runs `.github/workflows/release.yml`, which builds the two static Linux
+binaries (`x86_64` and `aarch64` musl) and attaches them as
+`keycloak-cli-<target>`.
+
+The macOS binaries are built on a Mac, because GitHub never assigns runners to the
+macOS jobs for this organisation (they are cancelled at creation with `runner_id:
+0`). `scripts/release-macos.sh <tag>` builds both Apple targets with the pinned
+toolchain, strips them, attaches them and writes the `SHA256SUMS` that covers
+**every** asset — run it after the Linux workflow, and the release is complete:
 
 ```sh
 gh run watch $(gh run list --workflow release --limit 1 --json databaseId -q '.[0].databaseId')
-gh release view v26.8.101 --repo rust-utility/keycloak-cli
+scripts/release-macos.sh v26.8.102
+gh release view v26.8.102 --repo rust-utility/keycloak-cli
 ```
+
+When the organisation gets macOS runners, the two matrix entries can go back into
+the workflow and the script becomes unnecessary.
+
+`install.sh` and `keycloak-cli self-update` consume exactly those assets, so a
+release is not complete until both steps are done.
 
 ## Yanking a release
 
