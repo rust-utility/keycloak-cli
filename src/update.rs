@@ -183,8 +183,12 @@ impl Update {
             None => self.latest().await?,
         };
 
-        if !options.force && latest == strip_tag(current) {
-            return Ok(Outcome::UpToDate { version: latest });
+        // Compare as versions, not as strings: a build newer than the latest
+        // release (a local build, or a release that was pulled) is up to date.
+        if !options.force && !is_newer(&latest, current) {
+            return Ok(Outcome::UpToDate {
+                version: strip_tag(current).to_owned(),
+            });
         }
         if options.check {
             return Ok(Outcome::Available {
@@ -249,6 +253,18 @@ fn first_line(text: &str) -> String {
         line.push_str("(no body)");
     }
     line
+}
+
+/// Whether `candidate` is a later version than `current`, by the `x.y.z` order
+/// the package uses. Unparseable versions fall back to string inequality.
+fn is_newer(candidate: &str, current: &str) -> bool {
+    match (
+        crate::version::Version::parse(candidate),
+        crate::version::Version::parse(strip_tag(current)),
+    ) {
+        (Some(candidate), Some(current)) => candidate > current,
+        _ => candidate != strip_tag(current),
+    }
 }
 
 /// `v26.8.101` and `26.8.101` both mean `26.8.101`.
@@ -341,6 +357,19 @@ mod tests {
             ),
             None
         );
+    }
+
+    #[test]
+    fn newer_versions_are_ordered_not_compared_as_strings() {
+        assert!(is_newer("26.8.102", "26.8.101"));
+        assert!(is_newer("v26.8.102", "26.8.101"));
+        assert!(!is_newer("26.8.101", "26.8.102"));
+        assert!(!is_newer("26.8.101", "26.8.101"));
+        // 26.8.10 is a *fix release* of 26.8.1, so it sorts after it.
+        assert!(is_newer("26.8.10", "26.8.2"));
+        // Anything unparseable is compared literally.
+        assert!(is_newer("nightly", "26.8.101"));
+        assert!(!is_newer("26.8.101", "26.8.101"));
     }
 
     #[test]

@@ -1,6 +1,6 @@
 [package]
 name = "keycloak-cli"
-version = "26.8.101"
+version = "26.8.102"
 authors = ["Alexander Korolev <alexander.korolev.germany@gmail.com>"]
 edition = "2021"
 rust-version = "1.88"
@@ -65,3 +65,8 @@ comfy-table = { version = "8", features = ["custom_styling"] }
 tokio = { version = "1", features = ["rt", "net", "time"] }
 # `self-update` verifies the downloaded binary against the release's SHA256SUMS.
 sha2 = "0.10"
+# The wrapped crate pulls reqwest in with `default-features = false`, which leaves
+# out its TLS backend: without this line every `https://` server (Keycloak
+# included) and the GitHub API for `self-update` are unreachable. Features are
+# additive, so this enables TLS for the crate's requests too.
+reqwest = { version = "0.13", default-features = false, features = ["rustls"] }

@@ -121,6 +121,22 @@ fn the_running_version_is_up_to_date() {
 }
 
 #[test]
+fn an_older_latest_release_is_not_an_update() {
+    // A local build newer than the latest release must not be "updated" down.
+    let stub = Stub::start(vec![latest("26.8.100")]);
+    let exe = Exe::new("older");
+
+    let outcome = run(&stub, &exe.path(), Options::default()).expect("the check succeeds");
+    assert_eq!(
+        outcome,
+        Outcome::UpToDate {
+            version: CURRENT.to_owned()
+        }
+    );
+    assert_eq!(exe.contents(), "old binary");
+}
+
+#[test]
 fn an_update_verifies_and_replaces_the_binary() {
     let replacement = binary();
     let stub = Stub::start(vec![

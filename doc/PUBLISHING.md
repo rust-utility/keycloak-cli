@@ -70,6 +70,19 @@ gh run watch $(gh run list --workflow release --limit 1 --json databaseId -q '.[
 gh release view v26.8.101 --repo rust-utility/keycloak-cli
 ```
 
+## Yanking a release
+
+A broken release cannot be republished under the same version, so it is yanked and
+followed by a fix release (`26.8.101` → `26.8.102`) with the same recipe:
+
+```sh
+gh workflow run yank --ref main -f version=26.8.101
+```
+
+The `yank` workflow uses the same trusted publisher, so no token is handled. Yanked
+versions stay installable when pinned exactly; `cargo install keycloak-cli` and
+`^` requirements skip them.
+
 ## Verifying a release
 
 - `gh run watch` the publish run: the log shows `Packaged` → `Uploading` →

@@ -26,6 +26,11 @@ jobs:
       # The generated sources must come from the published crate, not from a
       # checkout: this downloads the pinned keycloak release, unpacks it and runs
       # its own generator, then fails on any byte of difference.
+      # `keycloak` disables reqwest's default features, which drops TLS; without
+      # this the CLI cannot reach an https:// server or the update API.
+      - name: TLS backend is linked
+        run: cargo tree -e features -i reqwest | grep -q 'reqwest feature "rustls"'
+
       - name: Generated sources are up to date
         run: scripts/generate.sh --check
 
