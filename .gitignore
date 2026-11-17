@@ -6,3 +6,6 @@
 doc/RALPH_PROGRESS.md
 doc/.rounds-state.plan.json
 doc/rounds-history.plan.jsonl
+
+# Agent notes, not shipped documentation.
+AGENTS.md
